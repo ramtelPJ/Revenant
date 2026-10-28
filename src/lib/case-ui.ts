@@ -62,7 +62,7 @@ export type CaseDetail = {
   verdictReason: string | null;
   createdAt: number;
   updatedAt: number;
-  analysis: { inventory: unknown; summary: { purpose?: string; how_to_run?: string } | null; model: string | null; createdAt: number } | null;
+  analysis: { inventory: unknown; summary: { purpose?: string; how_to_run?: string; key_files?: { path: string; reason: string }[] } | null; model: string | null; createdAt: number } | null;
   latestFinding: Finding | null;
   latestPatch: { id: string; status: string } | null;
   activeJob: JobView | null;

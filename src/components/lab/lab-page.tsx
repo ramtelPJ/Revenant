@@ -4,12 +4,14 @@ import { useState } from "react";
 import { baselineCheck, type CaseDetail, type FilesResponse } from "@/lib/case-ui";
 import { formatBytes } from "@/lib/import-ui";
 import { useCaseData, useFiles, useHealth } from "@/lib/hooks";
+import type { Health } from "@/lib/health-problems";
 import { STAGE_LABEL } from "@/lib/labels";
 import { Brand, TopBar } from "../brand";
 import { AiPanel } from "./ai-panel";
 import { Explorer } from "./explorer";
 import { FileViewer } from "./file-viewer";
 import { InspectPanel } from "./inspect-panel";
+import { OverviewPanel } from "./overview-panel";
 import { SettingsDialog } from "./settings-dialog";
 
 type Panel = "files" | "center" | "ai";
@@ -120,7 +122,7 @@ export function LabPage({ caseId }: { caseId: string }) {
 
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="flex flex-col gap-6 p-[clamp(16px,2vw,28px)]">
-              <Overview detail={detail} files={filesData} filesError={files.error?.message ?? null} />
+              <Overview detail={detail} files={filesData} filesError={files.error?.message ?? null} health={health} onOpenFile={setSelected} onChanged={() => void caseData.reload()} />
               {selected && <FileViewer caseId={caseId} path={selected} onClose={() => setSelected(null)} />}
               <InspectPanel detail={detail} project={filesData?.project ?? null} health={health} onChanged={() => void caseData.reload()} />
             </div>
@@ -147,10 +149,9 @@ function Fact({ label, children, tone }: { label: string; children: React.ReactN
 }
 
 /** Facts read straight from the project's files. Nothing here comes from the model. */
-function Overview({ detail, files, filesError }: { detail: CaseDetail; files: FilesResponse | null; filesError: string | null }) {
+function Overview({ detail, files, filesError, health, onOpenFile, onChanged }: { detail: CaseDetail; files: FilesResponse | null; filesError: string | null; health: Health | null; onOpenFile: (path: string) => void; onChanged: () => void }) {
   const project = files?.project;
   const check = project ? baselineCheck(project.availableChecks) : null;
-  const summary = detail.analysis?.summary;
   return (
     <>
       <div className="flex flex-col gap-1.5">
@@ -203,14 +204,7 @@ function Overview({ detail, files, filesError }: { detail: CaseDetail; files: Fi
         </div>
       )}
 
-      <div className="flex flex-col gap-2 border border-line bg-surface p-4">
-        <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-accent">Purpose · AI summary</div>
-        {summary?.purpose ? (
-          <p className="m-0 text-sm leading-normal">{summary.purpose}</p>
-        ) : (
-          <p className="m-0 text-sm leading-normal text-muted">The local model hasn&apos;t written an overview of this project yet. Everything above was read directly from its files.</p>
-        )}
-      </div>
+      <OverviewPanel detail={detail} health={health} onOpenFile={onOpenFile} onChanged={onChanged} />
     </>
   );
 }
