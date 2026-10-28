@@ -42,3 +42,28 @@ export function diagnoseMessages(contextText: string, candidatesText: string, no
     },
   ];
 }
+
+/** One small repair for a diagnosed failure. The model quotes exact text to replace; the app checks every edit. */
+export function patchMessages(input: { filesText: string; nonce: string }): ChatMessage[] {
+  return [
+    { role: "system", content: RULES(input.nonce) },
+    {
+      role: "user",
+      content:
+        `${input.filesText}\n` +
+        `Task: propose the smallest change to the project's own files that fixes the failure described above.\n` +
+        `- rationale: one or two plain sentences on why this change fixes it.\n` +
+        `- edits: 1 to 5 edits. Each edit has path (a file shown above), search (text copied EXACTLY from that file, including spaces and line breaks, that occurs only once in it) and replace (the new text; empty to delete).\n` +
+        `Rules: change at most 3 files and about 60 lines in total. Never edit node_modules, .git or lockfiles. Do not invent files. Do not add dependencies. Copy search text from the file text only, never from the numbered evidence or the output.`,
+    },
+  ];
+}
+
+/** The one retry: show the model exactly why its edits were refused. */
+export function patchRetryMessages(previous: ChatMessage[], answer: unknown, problems: string): ChatMessage[] {
+  return [
+    ...previous,
+    { role: "assistant", content: JSON.stringify(answer).slice(0, 4000) },
+    { role: "user", content: `Your edits were refused:\n${problems}\nGive corrected edits. Answer again with only JSON that matches the required schema.` },
+  ];
+}
