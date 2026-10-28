@@ -1,0 +1,1 @@
+ALTER TABLE `findings` ADD `dropped_citations` integer DEFAULT 0 NOT NULL;

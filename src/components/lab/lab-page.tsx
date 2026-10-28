@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { baselineCheck, type CaseDetail, type FilesResponse } from "@/lib/case-ui";
 import { formatBytes } from "@/lib/import-ui";
@@ -18,9 +19,9 @@ type Panel = "files" | "center" | "ai";
 
 // The later steps are separate pages that arrive with the model, patch and verification work. They are shown, but
 // switched off, so the path through the product is visible without pretending it exists yet.
-const STEPS = [
+const STEPS: { num: string; label: string; active?: boolean; href?: (caseId: string) => string }[] = [
   { num: "01", label: "Overview", active: true },
-  { num: "02", label: "Autopsy" },
+  { num: "02", label: "Autopsy", href: (caseId) => `/cases/${caseId}/autopsy` },
   { num: "03", label: "Repair" },
   { num: "04", label: "Verification" },
 ];
@@ -30,7 +31,8 @@ export function LabPage({ caseId }: { caseId: string }) {
   const files = useFiles(caseId);
   const { health } = useHealth(true);
   const [panel, setPanel] = useState<Panel>("center");
-  const [selected, setSelected] = useState<string | null>(null);
+  const initialFile = useSearchParams().get("file"); // "View Source" on the autopsy links here
+  const [selected, setSelected] = useState<string | null>(initialFile);
   const [settings, setSettings] = useState(false);
 
   if (caseData.error) {
@@ -103,20 +105,35 @@ export function LabPage({ caseId }: { caseId: string }) {
         <main id="main" className={`${show("center")} min-h-0 min-w-0 flex-col`}>
           <nav aria-label="Investigation steps" className="flex flex-none overflow-x-auto border-b border-line">
             <ul role="tablist" className="m-0 flex list-none p-0">
-              {STEPS.map((step) => (
-                <li key={step.label} role="presentation">
-                  <span
-                    role="tab"
-                    aria-selected={step.active === true}
-                    aria-disabled={step.active ? undefined : true}
-                    title={step.active ? undefined : "Not available yet"}
-                    className={`-mb-px flex min-h-[46px] items-center gap-2 whitespace-nowrap border-b-2 px-5 text-sm font-medium ${step.active ? "border-accent text-fg" : "border-transparent text-muted opacity-60"}`}
-                  >
+              {STEPS.map((step) => {
+                const body = (
+                  <>
                     <span className="font-mono text-[11px] text-muted">{step.num}</span>
                     {step.label}
-                  </span>
-                </li>
-              ))}
+                  </>
+                );
+                // a step with a page is a link once there is something to show on it
+                if (step.href && detail.latestFinding) {
+                  return (
+                    <li key={step.label} role="presentation">
+                      <Link href={step.href(caseId)} role="tab" aria-selected={false} className="-mb-px flex min-h-[46px] items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-5 text-sm font-medium text-fg hover:border-line">{body}</Link>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={step.label} role="presentation">
+                    <span
+                      role="tab"
+                      aria-selected={step.active === true}
+                      aria-disabled={step.active ? undefined : true}
+                      title={step.active ? undefined : step.href ? "Appears after a diagnosis" : "Not available yet"}
+                      className={`-mb-px flex min-h-[46px] items-center gap-2 whitespace-nowrap border-b-2 px-5 text-sm font-medium ${step.active ? "border-accent text-fg" : "border-transparent text-muted opacity-60"}`}
+                    >
+                      {body}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
 

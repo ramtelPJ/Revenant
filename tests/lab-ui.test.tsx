@@ -32,7 +32,7 @@ const detail = (over: Partial<CaseDetail> = {}): CaseDetail => ({
   id: "c1", name: "demo", sourceKind: "sample", sourceLabel: "demo", stage: "imported", sizeBytes: 2048, fileCount: 3, verdict: null, verdictReason: null,
   createdAt: Date.now(), updatedAt: Date.now(), analysis: null, latestFinding: null, latestPatch: null, activeJob: null, checkRuns: [], ...over,
 });
-const makeFinding = (over: Partial<Finding> = {}): Finding => ({ id: "f", label: "no_failure_found", title: "No failure found", explanation: "e", category: null, evidence: [], checkRunId: null, model: null, createdAt: 1, ...over });
+const makeFinding = (over: Partial<Finding> = {}): Finding => ({ id: "f", label: "no_failure_found", title: "No failure found", explanation: "e", category: null, evidence: [], droppedCitations: 0, checkRunId: null, model: null, createdAt: 1, ...over });
 const makeJob = (over: Partial<JobView> = {}): JobView => ({ id: "j1", caseId: "c1", kind: "diagnose", status: "running", progressNote: null, steps: [], errorCode: null, errorMessage: null, createdAt: 1, startedAt: 1, finishedAt: null, ...over });
 const healthy: Health = { ollama: { reachable: true, modelInstalled: true, model: "gemma2:2b" }, docker: { available: true, imagePresent: true, image: "node:lts-slim" } };
 

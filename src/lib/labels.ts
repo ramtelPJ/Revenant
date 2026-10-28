@@ -19,3 +19,13 @@ export const VERDICT_LABEL: Record<Verdict, { label: string; tone: Tone }> = {
 };
 
 export const TONE_TAG: Record<Tone, string> = { ok: "tag-ok", warn: "tag-warn", bad: "tag-bad", neutral: "tag-neutral" };
+
+export type FindingLabel = "confirmed_by_check" | "supported_by_files" | "hypothesis" | "no_failure_found";
+
+/** How a stored finding label is shown. The label is decided in code on the server; this only gives it words. */
+export const FINDING_LABEL: Record<FindingLabel, { label: string; tone: Tone }> = {
+  confirmed_by_check: { label: "Confirmed by Check", tone: "ok" },
+  supported_by_files: { label: "Supported by Files", tone: "warn" },
+  hypothesis: { label: "Hypothesis", tone: "warn" },
+  no_failure_found: { label: "No failure found", tone: "ok" },
+};

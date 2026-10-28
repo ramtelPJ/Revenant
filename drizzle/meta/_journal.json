@@ -15,6 +15,13 @@
       "when": 1793120451369,
       "tag": "0001_evidence",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793160322715,
+      "tag": "0002_dropped_citations",
+      "breakpoints": true
     }
   ]
 }

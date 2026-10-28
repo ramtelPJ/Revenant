@@ -45,6 +45,7 @@ export type Finding = {
   explanation: string;
   category: string | null;
   evidence: unknown[];
+  droppedCitations: number;
   checkRunId: string | null;
   model: string | null;
   createdAt: number;

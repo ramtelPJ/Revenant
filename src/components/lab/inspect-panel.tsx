@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api-client";
 import { baselineCheck, type CaseDetail, type Project } from "@/lib/case-ui";
@@ -102,6 +103,7 @@ export function InspectPanel({ detail, project, health, onChanged }: { detail: C
             <span className={`tag ${finding.label === "no_failure_found" ? TONE_TAG.ok : TONE_TAG.warn}`}>{LABEL[finding.label]}</span>
           </div>
           <p className="m-0 text-[13px] leading-normal">{finding.explanation}</p>
+          <Link href={`/cases/${detail.id}/autopsy`} className="w-fit text-[13px] text-accent">Open the autopsy →</Link>
         </div>
       )}
 

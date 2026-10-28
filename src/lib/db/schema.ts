@@ -133,6 +133,8 @@ export const findings = sqliteTable(
     explanation: text("explanation").notNull(),
     category: text("category", { enum: FINDING_CATEGORIES }),
     evidenceJson: text("evidence_json").notNull(),
+    // how many of the model's citations could not be verified and were left out
+    droppedCitations: integer("dropped_citations").notNull().default(0),
     checkRunId: text("check_run_id").references((): AnySQLiteColumn => checkRuns.id, { onDelete: "set null" }),
     model: text("model"),
     createdAt: now("created_at"),

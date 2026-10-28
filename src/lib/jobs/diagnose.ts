@@ -124,6 +124,7 @@ export function startDiagnose(caseId: string, input: DiagnoseInput, deps: Diagno
           explanation: data.explanation,
           category: data.category,
           evidenceJson: JSON.stringify(checkRunId ? [...verified, { kind: "check", checkRunId }] : verified),
+          droppedCitations: dropped,
           checkRunId,
           model,
         })

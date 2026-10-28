@@ -76,6 +76,7 @@ export function getCaseDetail(caseId: string, db: Db = getDb()) {
       explanation: finding.explanation,
       category: finding.category,
       evidence: asArray(parse(finding.evidenceJson, [])),
+      droppedCitations: finding.droppedCitations,
       checkRunId: finding.checkRunId,
       model: finding.model,
       createdAt: finding.createdAt,
