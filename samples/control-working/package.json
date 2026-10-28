@@ -1,0 +1,13 @@
+{
+  "name": "control-working",
+  "version": "1.0.0",
+  "description": "A tiny greeter that works. Used to check that Revenant does not invent problems.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "esm-greeter": "file:vendor/esm-greeter-1.0.0.tgz"
+  },
+  "license": "MIT"
+}

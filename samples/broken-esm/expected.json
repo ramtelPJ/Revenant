@@ -1,0 +1,5 @@
+{
+  "failingCheck": "test",
+  "expectedCategory": "module_format",
+  "expectedFile": "src/index.js"
+}

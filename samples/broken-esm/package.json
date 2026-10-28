@@ -1,0 +1,13 @@
+{
+  "name": "broken-esm",
+  "version": "1.0.0",
+  "description": "A tiny greeter that stopped working after its dependency became ESM-only.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "esm-greeter": "file:vendor/esm-greeter-1.0.0.tgz"
+  },
+  "license": "MIT"
+}

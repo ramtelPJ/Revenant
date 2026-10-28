@@ -1,0 +1,4 @@
+{
+  "name": "Broken ESM greeter",
+  "description": "A small library whose test fails because a dependency became ESM-only. Fixable with a one-file change."
+}

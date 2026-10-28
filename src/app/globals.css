@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+/*
+ * REVENANT design tokens (from the v3 design: a near-black ground with an orange accent) and the component classes of
+ * its "Modernist" base: square corners, strong 2px rules, flush-left labels.
+ *
+ * `@theme static` makes Tailwind emit every token as a CSS variable, so the classes below and the Tailwind utilities
+ * (bg-surface, text-muted, ...) read the very same values. To change the look, edit this block.
+ */
+@theme static {
+  --color-bg: #0a0806;
+  --color-surface: #1a1410;
+  --color-raised: #120e0b;
+  --color-divider: #33281f;
+  --color-line: #33281f;
+  --color-text: #efe6d6;
+  --color-fg: #efe6d6;
+  --color-muted: #a39684;
+  --color-accent: #ff8a2b;
+  --color-accent-100: #24160c;
+  --color-accent-400: #f07316;
+  --color-accent-600: #f07316;
+  --color-accent-700: #d9620c;
+  --color-accent-800: #ff8a2b;
+  --color-neutral-100: #120e0b;
+  --color-neutral-800: #a39684;
+  --color-neutral-900: #000;
+  --color-ok: #8fd3a0;
+  --color-warn: #e8b44a;
+  --color-bad: #f16d72;
+
+  /* fonts are bundled with the app (see layout.tsx), so nothing is downloaded and it works offline */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Uncial Antiqua", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-heading: var(--font-sans);
+  --font-body: var(--font-sans);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --shadow-lg: 0 0 0 1px #33281f, 0 24px 64px rgba(0, 0, 0, 0.6);
+}
+
+/* base rules live in a layer so the component classes and Tailwind utilities can override them (an unlayered rule would always win) */
+@layer base {
+  html,
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-accent-600);
+  }
+  button {
+    font: inherit;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: var(--space-2) calc(var(--space-3) * 1.2);
+    border-radius: var(--radius-md);
+    transition: box-shadow 0.3s, transform 0.2s, background 0.2s, border-color 0.25s;
+  }
+  .btn svg {
+    display: block;
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: #1a0f05; /* dark text on the orange fill: the design's own choice, needed for contrast */
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-accent-600);
+    color: #1a0f05;
+    box-shadow: 0 0 0 1px rgba(255, 138, 43, 0.55), 0 10px 32px rgba(255, 110, 20, 0.32);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active:not(:disabled) {
+    background: var(--color-accent-700);
+  }
+  .btn-secondary {
+    border-color: var(--color-divider);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    background: rgba(255, 138, 43, 0.06);
+    color: var(--color-text);
+  }
+  .btn-ghost {
+    color: var(--color-accent);
+    padding-inline: var(--space-1);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+  }
+  .btn-block {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  /* forms */
+  .field > label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: var(--color-muted);
+  }
+  .input {
+    width: 100%;
+    min-height: 40px;
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--color-text);
+    caret-color: var(--color-accent);
+    background: var(--color-raised);
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-md);
+  }
+  .input:hover {
+    border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  }
+  .input:focus-visible {
+    border-color: var(--color-accent);
+    outline-offset: 0;
+  }
+
+  /* tags */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border: 1px solid transparent;
+  }
+  .tag-accent {
+    background: var(--color-accent-100);
+    color: var(--color-accent-800);
+  }
+  .tag-neutral {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-800);
+    border-color: var(--color-divider);
+  }
+  .tag-outline {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .tag-ok {
+    background: rgba(143, 211, 160, 0.1);
+    color: var(--color-ok);
+  }
+  .tag-warn {
+    background: rgba(232, 180, 74, 0.1);
+    color: var(--color-warn);
+  }
+  .tag-bad {
+    background: rgba(241, 109, 114, 0.1);
+    color: var(--color-bad);
+  }
+
+  /* cards, rules, tables, dialogs */
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: var(--color-surface);
+  }
+  .hr {
+    height: 2px;
+    border: 0;
+    margin: var(--space-4) 0;
+    background: var(--color-divider);
+  }
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .table th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    padding: var(--space-2);
+    border-bottom: 2px solid var(--color-divider);
+  }
+  .table td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: var(--space-4);
+    background: rgba(0, 0, 0, 0.62);
+  }
+  .dialog {
+    width: min(460px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+  }
+  .dialog-title {
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .dialog-body {
+    font-size: 14px;
+    color: var(--color-muted);
+  }
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  /* the design's small type styles */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* motion from the design; all of it is switched off for people who ask for reduced motion */
+@keyframes rvGlitch {
+  0%, 88%, 100% { transform: none; text-shadow: none; clip-path: none; }
+  89% { transform: translate(-2px, 0) skewX(-6deg); text-shadow: 2px 0 #f16d72, -2px 0 #ff8a2b; }
+  91% { transform: translate(2px, 0); text-shadow: -2px 0 #f16d72, 2px 0 #ff8a2b; clip-path: inset(20% 0 35% 0); }
+  93% { transform: none; text-shadow: 1px 0 #f16d72; }
+  95% { clip-path: inset(60% 0 5% 0); transform: translate(-1px, 0); }
+}
+@keyframes rvScan { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+@keyframes rvBlink { 50% { opacity: 0; } }
+@keyframes rvPulse { 50% { opacity: 0.3; } }
+@keyframes rvDrift { from { transform: translate3d(-4%, 0, 0); } to { transform: translate3d(4%, -3%, 0); } }
+@keyframes rvIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.rv-glitch { display: inline-block; color: var(--color-accent); animation: rvGlitch 4.5s infinite steps(1, end); }
+.rv-blink { animation: rvBlink 1s steps(1) infinite; }
+.rv-in { animation: rvIn 0.3s ease-out; }
+.rv-scan { animation: rvScan 1.6s linear infinite; }
+.rv-drift { animation: rvDrift 18s ease-in-out infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
+}
