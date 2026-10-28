@@ -91,7 +91,11 @@ export function AutopsyView({ detail, onChanged }: { detail: CaseDetail; onChang
           ) : (
             <button type="button" disabled title="No cited file to open" className="btn btn-secondary px-[18px] py-[11px]">View Source</button>
           )}
-          <button type="button" disabled title={nothingWrong ? "There is nothing to repair" : "Repair suggestions arrive with the next build step"} className="btn btn-primary px-[18px] py-[11px]">Propose Repair</button>
+          {finding && !nothingWrong ? (
+            <Link href={`/cases/${detail.id}/repair`} className="btn btn-primary px-[18px] py-[11px]">Propose Repair</Link>
+          ) : (
+            <button type="button" disabled title={finding ? "There is nothing to repair" : "Diagnose first"} className="btn btn-primary px-[18px] py-[11px]">Propose Repair</button>
+          )}
         </nav>
 
         <AddLog caseId={detail.id} busy={busy} activeJobId={detail.activeJob?.id ?? null} onChanged={onChanged} />

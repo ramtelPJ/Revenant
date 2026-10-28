@@ -65,9 +65,23 @@ export type CaseDetail = {
   updatedAt: number;
   analysis: { inventory: unknown; summary: { purpose?: string; how_to_run?: string; key_files?: { path: string; reason: string }[] } | null; model: string | null; createdAt: number } | null;
   latestFinding: Finding | null;
-  latestPatch: { id: string; status: string } | null;
+  latestPatch: Patch | null;
   activeJob: JobView | null;
   checkRuns: CheckRun[];
+};
+
+export type PatchStatus = "proposed" | "approved" | "rejected" | "superseded";
+export type Patch = {
+  id: string;
+  findingId: string;
+  attempt: number;
+  rationale: string;
+  diffText: string;
+  filesAffected: string[];
+  status: PatchStatus;
+  model: string;
+  createdAt: number;
+  decidedAt: number | null;
 };
 
 export const STAGE_ORDER: Stage[] = ["imported", "analyzed", "diagnosed", "patched", "verified"];
