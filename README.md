@@ -4,7 +4,7 @@
 
 Revenant is a local-first web app that investigates a broken Node.js project, proposes one small AI-written fix, and proves whether it worked by running the project's own checks in a sandbox. Everything runs on your machine: a local model through Ollama and a locked-down Docker container. Your code never leaves your computer.
 
-![Revenant landing page](docs/landing.png)
+![Revenant landing page](docs/landing_UI.png)
 
 ## The idea
 
