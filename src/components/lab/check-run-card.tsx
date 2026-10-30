@@ -17,26 +17,52 @@ export function CheckRunCard({ run }: { run: CheckRun }) {
       <dl className="m-0 grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] border-b border-line text-sm">
         <div className="border-r border-line px-[18px] py-2.5">
           <dt className="text-xs text-muted">Exit code</dt>
-          <dd className="m-0 font-mono text-[13px]">{run.exitCode ?? "none"}</dd>
+          <dd className="m-0 font-mono text-[0.8667rem]">{run.exitCode ?? "none"}</dd>
         </div>
         <div className="border-r border-line px-[18px] py-2.5">
           <dt className="text-xs text-muted">Time</dt>
-          <dd className="m-0 font-mono text-[13px]">{formatDuration(run.durationMs)}</dd>
+          <dd className="m-0 font-mono text-[0.8667rem]">{formatDuration(run.durationMs)}</dd>
         </div>
         <div className="px-[18px] py-2.5">
           <dt className="text-xs text-muted">Sandbox</dt>
-          <dd className="m-0 font-mono text-[13px]">{describeLimits(run.limits)}</dd>
+          <dd className="m-0 font-mono text-[0.8667rem]">{describeLimits(run.limits)}</dd>
         </div>
       </dl>
       {run.status === "unrunnable" && <p className="m-0 px-[18px] py-3 text-sm text-fg">{explainUnrunnable(run.unrunnableReason)}</p>}
+      {run.status === "timed_out" && (
+        <p className="m-0 px-[18px] py-3 text-sm text-fg">
+          The check did not finish within {run.limits?.timeoutSec ? `its ${run.limits.timeoutSec} second limit` : "its time limit"} and was stopped. A check that hangs counts as not passing.
+        </p>
+      )}
       {run.outputExcerpt && (
         <div className="px-[18px] py-3">
-          <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">Output{truncated ? " (cut at 64 KB)" : ""}</div>
+          <div className="mb-2 font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted">Output{truncated ? " (cut at 64 KB)" : ""}</div>
           <pre tabIndex={0} aria-label="Check output" className="m-0 max-h-72 overflow-auto whitespace-pre-wrap break-words bg-raised p-3 font-mono text-xs leading-[1.7] text-fg">
             {run.outputExcerpt}
           </pre>
         </div>
       )}
     </article>
+  );
+}
+
+const PAIR_H = "mb-2 font-mono text-xs uppercase tracking-[0.12em] text-muted";
+
+/** The same check on the original and on the repaired copy, side by side on wide screens and stacked on narrow ones. */
+export function CheckRunPair({ label, before, after }: { label: string; before: CheckRun | null; after: CheckRun | null }) {
+  return (
+    <section aria-label={`${label}: before and after`} className="flex flex-col gap-3">
+      <h3 className="m-0 font-mono text-sm font-medium">{label}</h3>
+      <div className="grid grid-cols-1 items-start gap-4 min-[900px]:grid-cols-2">
+        <div className="min-w-0">
+          <div className={PAIR_H}>Before: original project</div>
+          {before ? <CheckRunCard run={before} /> : <p className="m-0 text-sm text-muted">This check has no run on the original project.</p>}
+        </div>
+        <div className="min-w-0">
+          <div className={PAIR_H}>After: repaired copy</div>
+          {after ? <CheckRunCard run={after} /> : <p className="m-0 text-sm text-muted">This check has not run on the repaired copy yet.</p>}
+        </div>
+      </div>
+    </section>
   );
 }

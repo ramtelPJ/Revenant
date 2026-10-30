@@ -1,0 +1,4 @@
+{
+  "name": "Broken missing main",
+  "description": "A small module whose package.json points at a file that was renamed. Fixable with a one-line change to package.json."
+}

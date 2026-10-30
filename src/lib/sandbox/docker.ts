@@ -128,8 +128,12 @@ export type RunDockerOptions = {
   deps?: { spawn?: typeof spawn; resolveBin?: () => Promise<string | undefined> };
 };
 
+// Docker 29's client, when it cannot reach the daemon, exits 1 (not 125) and prints only this, before anything runs.
+// Matched at the very start of the output so a project that happens to print similar words is still its own failure.
+const CLIENT_CANNOT_CONNECT = /^\s*(docker: )?failed to connect to the docker API at /i;
+
 function classifyFailure(output: string): UnavailableReason | undefined {
-  if (/Cannot connect to the Docker daemon|Is the docker daemon running|error during connect/i.test(output)) return "docker_not_running";
+  if (/Cannot connect to the Docker daemon|Is the docker daemon running|error during connect|failed to connect to the docker API/i.test(output)) return "docker_not_running";
   if (/Unable to find image|No such image|pull access denied/i.test(output)) return "image_missing";
   return undefined;
 }
@@ -218,8 +222,10 @@ export async function runDocker(args: string[], options: RunDockerOptions): Prom
     child.on("close", (exitCode) => {
       let output = Buffer.concat(chunks).toString("utf8");
       if (truncated) output += truncationMarker(maxBytes);
-      // exit 125 means docker itself failed (not the project): report why, do not blame the project
-      if (exitCode === 125 && !timedOut && !survived && !aborted) {
+      // exit 125 means docker itself failed (not the project): report why, do not blame the project.
+      // Docker 29 reports an unreachable daemon with exit 1 and its own leading message; that is Docker failing too.
+      const dockerFailed = exitCode === 125 || (exitCode === 1 && CLIENT_CANNOT_CONNECT.test(output));
+      if (dockerFailed && !timedOut && !survived && !aborted) {
         const reason = classifyFailure(output);
         if (reason) return finish({ kind: "unavailable", reason });
       }

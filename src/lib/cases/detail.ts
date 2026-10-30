@@ -49,6 +49,7 @@ export function getCaseDetail(caseId: string, db: Db = getDb()) {
     .where(and(eq(jobs.caseId, caseId), inArray(jobs.status, ["queued", "running"])))
     .limit(1)
     .get();
+  const latestJob = db.select().from(jobs).where(eq(jobs.caseId, caseId)).orderBy(...newest(jobs)).limit(1).get();
   const runs = db.select().from(checkRuns).where(eq(checkRuns.caseId, caseId)).orderBy(asc(checkRuns.startedAt), asc(sql`rowid`)).all();
 
   return {
@@ -94,6 +95,8 @@ export function getCaseDetail(caseId: string, db: Db = getDb()) {
       decidedAt: patch.decidedAt,
     } : null,
     activeJob: active ? formatJob(active) : null,
+    // the case's newest job, if it ended badly: a failure, a restart or a cancel stays visible until a later step succeeds
+    lastJob: latestJob && (latestJob.status === "failed" || latestJob.status === "cancelled") ? formatJob(latestJob) : null,
     checkRuns: runs.map((r) => ({
       id: r.id,
       patchId: r.patchId,

@@ -29,7 +29,7 @@ export function HealthBannerView({ health, onRecheck }: { health: Health | null;
       <div className="flex items-start justify-between gap-4">
         <p className="font-medium text-warn">{problems.length === 1 ? "One thing needs attention" : `${problems.length} things need attention`}</p>
         {onRecheck && (
-          <button type="button" onClick={onRecheck} className="shrink-0 rounded border border-line px-3 py-1 text-sm hover:bg-raised">
+          <button type="button" onClick={onRecheck} className="btn btn-secondary shrink-0 px-3 py-1 text-sm">
             Check again
           </button>
         )}

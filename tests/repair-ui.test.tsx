@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import { DiffViewer } from "@/components/diff-viewer";
+import { investigationSteps } from "@/components/lab/lab-page";
 import { RepairView } from "@/components/repair/repair-page";
 import type { CaseDetail, Patch } from "@/lib/case-ui";
 import { parseUnifiedDiff } from "@/lib/diff-ui";
@@ -69,4 +70,37 @@ describe("RepairView", () => {
     expect(out).not.toContain("Propose Repair");
   });
   test("no patch yet offers Propose Repair", () => expect(view(detail({ latestPatch: null }))).toContain("Propose Repair"));
+});
+
+describe("investigation steps", () => {
+  const href = (d: CaseDetail, label: string) => investigationSteps(d).find((s) => s.label === label)?.href;
+  test("Autopsy and Repair become links once there is a failure to look at", () => {
+    expect(href(detail(), "Autopsy")).toBe("/cases/c1/autopsy");
+    expect(href(detail(), "Repair")).toBe("/cases/c1/repair");
+  });
+  test("nothing links before a diagnosis, and Repair stays off when there is no failure", () => {
+    const none = detail({ latestFinding: null });
+    expect([href(none, "Autopsy"), href(none, "Repair")]).toEqual([undefined, undefined]);
+    const fine = detail();
+    fine.latestFinding!.label = "no_failure_found";
+    expect(href(fine, "Autopsy")).toBe("/cases/c1/autopsy");
+    expect(href(fine, "Repair")).toBeUndefined();
+  });
+  test("Verification is not offered yet and Overview is the current step", () => {
+    const steps = investigationSteps(detail());
+    const verification = steps.find((s) => s.label === "Verification");
+    expect(verification?.href).toBeUndefined();
+    expect(verification?.why).toBe("Appears after a patch is approved");
+    expect(investigationSteps(detail({ latestPatch: patch({ status: "approved" }) })).find((s) => s.label === "Verification")?.href).toBe("/cases/c1/verify");
+    expect(steps.filter((s) => s.current).map((s) => s.label)).toEqual(["Overview"]);
+  });
+});
+
+describe("DiffViewer on a phone", () => {
+  test("a stacked copy shows the removed line and the added line, each with its mark", () => {
+    const out = html(<DiffViewer diffText={diffText} />);
+    expect(out).toContain("sm:hidden");
+    expect(out).toContain("bg-bad/15");
+    expect(out).toContain("bg-ok/15");
+  });
 });

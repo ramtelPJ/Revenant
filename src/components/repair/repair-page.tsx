@@ -7,9 +7,10 @@ import { useCaseData } from "@/lib/hooks";
 import { FINDING_LABEL, TONE_TAG } from "@/lib/labels";
 import { TopBar } from "../brand";
 import { DiffViewer } from "../diff-viewer";
+import { LastStepNotice } from "../last-step-notice";
 import { JobPanel } from "../job-progress";
 
-const H = "font-mono text-[11px] uppercase tracking-[0.12em] text-muted";
+const H = "font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted";
 const BTN = "px-[18px] py-[11px]";
 
 /** Loads the case, then shows its repair lab. */
@@ -76,6 +77,7 @@ export function RepairView({ detail, onChanged }: { detail: CaseDetail; onChange
       onChanged();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "That didn't work. Try again.");
+      if (e instanceof ApiError && e.status === 409) onChanged(); // the case moved on (a newer patch, a step running): show how it stands now
     } finally {
       busyRef.current = false;
       setPending(false);
@@ -112,7 +114,7 @@ export function RepairView({ detail, onChanged }: { detail: CaseDetail; onChange
             <p role="status" className="m-0 text-sm">{STATUS_NOTE[patch.status]}</p>
             <div>
               <div className={H}>Why</div>
-              <p className="m-0 mt-1 text-[15px] leading-relaxed">{patch.rationale}</p>
+              <p className="m-0 mt-1 text-[1rem] leading-relaxed">{patch.rationale}</p>
             </div>
             <div>
               <div className={H}>Files affected</div>
@@ -125,6 +127,7 @@ export function RepairView({ detail, onChanged }: { detail: CaseDetail; onChange
           </section>
         )}
 
+        {!shownJob && <LastStepNotice job={detail.lastJob} />}
         {error && <p role="alert" className="m-0 text-sm text-bad">{error}</p>}
         {shownJob && (
           <JobPanel
@@ -138,6 +141,7 @@ export function RepairView({ detail, onChanged }: { detail: CaseDetail; onChange
 
         <nav aria-label="Actions" className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
           <Link href={`/cases/${detail.id}/autopsy`} className={`btn btn-secondary ${BTN}`}>Back to Autopsy</Link>
+          {patch?.status === "approved" && <Link href={`/cases/${detail.id}/verify`} className={`btn btn-primary ${BTN}`}>Continue to Verification</Link>}
           {patch?.status === "proposed" && (
             <>
               <button type="button" disabled={working} onClick={() => decide("approve")} className={`btn btn-primary ${BTN}`}>Approve Patch</button>

@@ -45,7 +45,7 @@ export function JobProgressView({ job, error, onCancel, cancelling }: ViewProps)
       <div className="flex items-center justify-between gap-4">
         <p className={`font-medium ${status.tone}`}>{status.label}</p>
         {!isFinished(job) && onCancel && (
-          <button type="button" onClick={onCancel} disabled={cancelling} className="rounded border border-line px-3 py-1 text-sm hover:bg-raised disabled:opacity-60">
+          <button type="button" onClick={onCancel} disabled={cancelling} className="btn btn-secondary px-3 py-1 text-sm">
             {cancelling ? "Cancelling…" : "Cancel"}
           </button>
         )}

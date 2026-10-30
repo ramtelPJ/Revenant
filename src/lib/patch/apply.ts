@@ -13,6 +13,12 @@ export type PatchDeps = { db?: Db; dataDir?: string };
 
 const wrongState = (message: string) => new AppError("WRONG_STATE", 409, message);
 
+/** Why a patch can no longer be approved or rejected, in plain words. */
+const settled = (status: string, verb: "approved" | "rejected") =>
+  wrongState(
+    status === "superseded" ? "That patch was replaced by a newer one." : status === "rejected" ? "That patch was already rejected." : status === "approved" ? "That patch is already approved." : `That patch can't be ${verb}.`,
+  );
+
 /** A step running on this case may be reading `working/`, so it must not be rebuilt under it. */
 function assertNoActiveJob(caseId: string, db: Db) {
   const active = db.select({ id: jobs.id }).from(jobs).where(and(eq(jobs.caseId, caseId), inArray(jobs.status, ["queued", "running"]))).get();
@@ -38,7 +44,7 @@ export async function approvePatch(caseId: string, patchId: string, deps: PatchD
   const db = deps.db ?? getDb();
   getCaseOr404(caseId, db);
   const patch = getPatchInCase(caseId, patchId, db);
-  if (patch.status !== "proposed") throw wrongState(`That patch is ${patch.status}, so it can't be approved.`);
+  if (patch.status !== "proposed") throw settled(patch.status, "approved");
   assertNoActiveJob(caseId, db);
 
   const original = caseFolder(caseId, "original", deps.dataDir);
@@ -80,7 +86,7 @@ export function rejectPatch(caseId: string, patchId: string, deps: PatchDeps = {
   const db = deps.db ?? getDb();
   getCaseOr404(caseId, db);
   const patch = getPatchInCase(caseId, patchId, db);
-  if (patch.status !== "proposed") throw wrongState(`That patch is ${patch.status}, so it can't be rejected.`);
+  if (patch.status !== "proposed") throw settled(patch.status, "rejected");
   db.update(patches).set({ status: "rejected", decidedAt: Date.now() }).where(eq(patches.id, patchId)).run();
   updateCase(caseId, { stage: "diagnosed" }, db);
   return getPatchInCase(caseId, patchId, db);

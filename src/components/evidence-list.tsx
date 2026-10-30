@@ -3,7 +3,7 @@ import type { CheckRun } from "@/lib/case-ui";
 import { droppedNote, lineRange, parseEvidence, sourceHref } from "@/lib/evidence-ui";
 import { CheckRunCard } from "./lab/check-run-card";
 
-const H = "font-mono text-[11px] uppercase tracking-[0.12em] text-muted";
+const H = "font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted";
 
 /**
  * The evidence behind a finding. Only items the server verified are stored, so only those are drawn.
@@ -45,7 +45,7 @@ export function EvidenceList({ caseId, evidence, droppedCitations, checkRuns }: 
         return run ? <CheckRunCard key={i} run={run} /> : <p key={i} className="m-0 text-sm text-muted">The check run that confirmed this is no longer available.</p>;
       })}
 
-      {note && <p role="status" className="m-0 text-[13px] text-warn">{note}</p>}
+      {note && <p role="status" className="m-0 text-[0.8667rem] text-warn">{note}</p>}
     </section>
   );
 }

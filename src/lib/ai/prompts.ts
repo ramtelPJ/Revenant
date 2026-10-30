@@ -36,7 +36,14 @@ export function diagnoseMessages(contextText: string, candidatesText: string, no
         `Task: explain the most likely cause of the failure.\n` +
         `- title: a short name for the problem.\n` +
         `- explanation: two or three sentences that say what is wrong and why, in plain words.\n` +
-        `- category: the best match from the allowed list.\n` +
+        `- category: the best match from the allowed list. What each one means:\n` +
+        `    module_format: CommonJS and ES module styles clash (require() of an ES-module-only package, import in a CommonJS file, "type" in package.json).\n` +
+        `    removed_api: the code calls a function, method or option that the installed version of a package, or of Node, no longer has.\n` +
+        `    bad_path_or_config: a wrong path or setting in package.json or another config file (main, scripts, exports, a file path).\n` +
+        `    missing_file: a file the project needs does not exist.\n` +
+        `    dependency_version: a package is the wrong version, or does not work with this Node version or another package.\n` +
+        `    runtime_error: the project's own code throws while running (bad logic, an undefined value) and none of the above fits.\n` +
+        `    other: nothing above fits.\n` +
         `- actionable: true only if a small change to existing project files could fix it.\n` +
         `- cites: the numbers of the evidence items that support your explanation (at most 6). Cite only numbers listed above.`,
     },

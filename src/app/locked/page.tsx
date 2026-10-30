@@ -4,7 +4,7 @@ export const metadata = { title: "Locked · Revenant" };
 
 export default function Locked() {
   return (
-    <main id="main" className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-6 px-4 py-16">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-xl flex-col justify-center gap-6 px-4 py-16">
       <Brand />
       <h1 className="display m-0 text-4xl leading-none">This door is locked</h1>
       <p className="m-0 text-muted">

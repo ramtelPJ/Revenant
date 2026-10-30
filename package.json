@@ -10,6 +10,7 @@
     "revenant": "node scripts/launch.ts",
     "prepare-samples": "node scripts/prepare-samples.ts",
     "setup-check": "node scripts/setup-check.ts",
+    "eval": "node scripts/eval.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

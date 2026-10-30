@@ -118,5 +118,21 @@ describe.runIf(ready)("real Docker sandbox", { timeout: 90_000 }, () => {
   });
 });
 
+// FIX-001: with the real docker command and a daemon that cannot be reached, Docker's own error must not be blamed on the project
+const haveCli = (await resolveDockerBin()) !== undefined;
+describe.runIf(haveCli)("real docker CLI with an unreachable daemon", { timeout: 60_000 }, () => {
+  test("is docker_not_running, never a failed run of the project", async () => {
+    const before = process.env.DOCKER_HOST;
+    process.env.DOCKER_HOST = "unix:///nonexistent/revenant-test.sock";
+    try {
+      const p = project({ test: "node test.js" }, { "test.js": "" });
+      expect(await run("test", p)).toEqual({ kind: "unavailable", reason: "docker_not_running" });
+    } finally {
+      if (before === undefined) delete process.env.DOCKER_HOST;
+      else process.env.DOCKER_HOST = before;
+    }
+  });
+});
+
 test.skipIf(ready)("real Docker sandbox tests were SKIPPED: Docker or the node:lts-slim image is not available", () => {});
 test("survival constant matches the documented 8 seconds", () => expect(START_SURVIVAL_MS).toBe(8000));

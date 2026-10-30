@@ -1,0 +1,5 @@
+{
+  "failingCheck": "test",
+  "expectedCategory": "removed_api",
+  "expectedFile": "src/index.js"
+}

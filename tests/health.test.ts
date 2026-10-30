@@ -128,7 +128,7 @@ describe("GET /api/health", () => {
     expect((await res.json()).data).toEqual({
       ollama: { reachable: false, modelInstalled: false, model: "gemma2:2b" },
       docker: { available: false, imagePresent: false, image: "node:lts-slim" },
-      limits: { maxArchiveMb: 100, maxProjectMb: 300 }, // the configured upload and project size limits
+      limits: { maxArchiveMb: 100, maxProjectMb: 300, sandboxMemoryMb: 512, sandboxCpus: 1, checkTimeoutSec: 120 }, // the configured upload, project and sandbox limits
     });
   });
 

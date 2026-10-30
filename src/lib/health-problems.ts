@@ -3,7 +3,7 @@ import { START_DOCKER_FIX, START_OLLAMA_FIX, pullImageFix, pullModelFix } from "
 export type Health = {
   ollama: { reachable: boolean; modelInstalled: boolean; model: string };
   docker: { available: boolean; imagePresent: boolean; image: string };
-  limits?: { maxArchiveMb: number; maxProjectMb: number };
+  limits?: { maxArchiveMb: number; maxProjectMb: number; sandboxMemoryMb?: number; sandboxCpus?: number; checkTimeoutSec?: number };
 };
 export type Problem = { id: "ollama" | "model" | "docker" | "image"; title: string; consequence: string; fix: string };
 

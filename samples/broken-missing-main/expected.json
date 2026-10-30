@@ -1,0 +1,5 @@
+{
+  "failingCheck": "test",
+  "expectedCategory": "bad_path_or_config",
+  "expectedFile": "package.json"
+}

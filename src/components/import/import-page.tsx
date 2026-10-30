@@ -7,7 +7,7 @@ import { checkChosenFile, describeImportError, type ImportProblem } from "@/lib/
 import { TopBar } from "../brand";
 import { ImportErrorBox, RecentInvestigations, SampleCards, SelectionCard, type RecentCase, type SampleInfo } from "./import-parts";
 
-const H = "mb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-muted";
+const H = "mb-3 font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted";
 const FIELD = "w-full border border-line bg-raised px-3 py-2.5 font-mono text-sm text-fg";
 
 /** Three ways in: a shipped sample, a folder on this machine, or a zip. Importing only reads files; nothing runs. */
@@ -32,6 +32,16 @@ export function ImportPage() {
       alive = false;
     };
   }, []);
+
+  const deleteCase = async (c: RecentCase) => {
+    if (!window.confirm(`Delete "${c.name}" and all its results from this machine? This can't be undone.`)) return;
+    try {
+      await apiFetch(`/api/cases/${c.id}`, { method: "DELETE" });
+      setRecent((list) => list?.filter((x) => x.id !== c.id) ?? null);
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : "Couldn't delete that case.");
+    }
+  };
 
   const importCase = async (body: Record<string, unknown> | FormData) => {
     setBusy(true);
@@ -109,7 +119,7 @@ export function ImportPage() {
 
         <section aria-label="Recent investigations">
           <div className={H}>Recent investigations</div>
-          <RecentInvestigations cases={recent} />
+          <RecentInvestigations cases={recent} onDelete={deleteCase} />
         </section>
       </main>
     </>

@@ -9,5 +9,5 @@ export const GET = handle(async (request) => {
   const env = getEnv();
   // both checks answer "not available" instead of failing, so the app can say what is missing
   const [ollama, docker] = await Promise.all([checkOllama(env.OLLAMA_URL, env.OLLAMA_MODEL), checkDocker(env.SANDBOX_IMAGE)]);
-  return ok({ ollama, docker, limits: { maxArchiveMb: env.MAX_ARCHIVE_MB, maxProjectMb: env.MAX_PROJECT_MB } });
+  return ok({ ollama, docker, limits: { maxArchiveMb: env.MAX_ARCHIVE_MB, maxProjectMb: env.MAX_PROJECT_MB, sandboxMemoryMb: env.SANDBOX_MEMORY_MB, sandboxCpus: env.SANDBOX_CPUS, checkTimeoutSec: env.CHECK_TIMEOUT_SEC } });
 });

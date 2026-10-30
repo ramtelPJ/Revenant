@@ -254,7 +254,7 @@ describe("AiPanel", () => {
 
   test("a finding gets a label from the checks, and no confidence number is ever shown", () => {
     const out = html(<AiPanel detail={detail({ latestFinding: makeFinding() })} health={healthy} />);
-    expect(out).toContain("Check passed");
+    expect(out).toContain("No failure found");
     expect(out).toContain("never from the model&#x27;s own confidence");
     expect(out).not.toMatch(/\d+\s?%|confidence score/i);
   });

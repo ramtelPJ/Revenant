@@ -14,7 +14,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" aria-label="REVENANT home" className="flex items-center gap-2.5 text-fg hover:text-fg">
       <LogoMark />
-      <span className={`display ${compact ? "text-sm tracking-[0.01em]" : "text-[17px] tracking-[0.14em]"}`}>REVENANT</span>
+      <span className={`display ${compact ? "text-sm tracking-[0.01em]" : "text-[1.1333rem] tracking-[0.14em]"}`}>REVENANT</span>
     </Link>
   );
 }
@@ -24,7 +24,7 @@ export function TopBar({ trail, children }: { trail?: React.ReactNode; children?
   return (
     <header className="flex flex-wrap items-center gap-4 border-b-2 border-line px-[clamp(16px,4vw,48px)] py-3.5">
       <Brand />
-      {trail && <span className="font-mono text-xs text-muted">/ {trail}</span>}
+      {trail && <span className="block min-w-0 max-w-full truncate font-mono text-xs text-muted">/ {trail}</span>}
       {children && <div className="ml-auto flex flex-wrap items-center gap-3">{children}</div>}
     </header>
   );

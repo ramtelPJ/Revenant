@@ -4,7 +4,7 @@ import { STAGE_ORDER, buildTree, extOf, visibleRows, type CaseDetail, type Files
 import { formatBytes, formatWhen } from "@/lib/import-ui";
 import { STAGE_LABEL } from "@/lib/labels";
 
-const H = "mb-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted";
+const H = "mb-2.5 font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted";
 
 export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDetail; files: FilesResponse | null; selected: string | null; onSelect: (path: string) => void }) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
@@ -23,7 +23,7 @@ export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDe
   return (
     <aside aria-label="Repository explorer" className="min-h-0 min-w-0 flex-1 overflow-y-auto border-r border-line bg-raised">
       <div className="flex flex-col gap-1 border-b border-line p-4">
-        <div className="display break-words text-lg">{detail.name}</div>
+        <div className="break-words text-lg font-semibold leading-snug">{detail.name}</div>
         <div className="font-mono text-xs text-muted">
           {project?.version ? `v${project.version} · ` : ""}Node.js · {formatBytes(detail.sizeBytes)}
         </div>
@@ -36,21 +36,21 @@ export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDe
             <div key={stage} title={STAGE_LABEL[stage]} className={`h-1 ${i <= stageIndex ? "bg-accent" : "bg-line"}`} />
           ))}
         </div>
-        <div className="mt-2 text-[13px]">{STAGE_LABEL[detail.stage]}</div>
+        <div className="mt-2 text-[0.8667rem]">{STAGE_LABEL[detail.stage]}</div>
       </div>
 
       <div className="border-b border-line pb-2 pt-3.5">
         <div className={`${H} px-4`}>Files</div>
-        {!files && <p className="m-0 px-4 text-[13px] text-muted">Loading…</p>}
+        {!files && <p className="m-0 px-4 text-[0.8667rem] text-muted">Loading…</p>}
         <ul className="m-0 list-none p-0">
           {rows.map((row) => (
             <li key={row.path}>
               {row.kind === "modules" ? (
-                <div className="flex min-h-[30px] items-center gap-1.5 pr-3 font-mono text-[12.5px] text-muted" style={{ paddingLeft: 12 + row.depth * 14 }}>
+                <div className="flex min-h-[30px] items-center gap-1.5 pr-3 font-mono text-[0.8333rem] text-muted" style={{ paddingLeft: 12 + row.depth * 14 }}>
                   <span className="w-3 flex-none" />
                   <span className="w-[22px] flex-none" />
                   <span className="flex-none">{row.name}</span>
-                  <span className="ml-auto flex-none text-[11px]" title="Its contents are not listed">{row.fileCount?.toLocaleString()} files</span>
+                  <span className="ml-auto flex-none text-[0.8rem]" title="Its contents are not listed">{row.fileCount?.toLocaleString()} files</span>
                 </div>
               ) : (
                 <button
@@ -58,7 +58,7 @@ export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDe
                   onClick={() => (row.kind === "dir" ? toggle(row.path) : onSelect(row.path))}
                   aria-expanded={row.kind === "dir" ? row.expanded : undefined}
                   aria-current={row.path === selected ? "true" : undefined}
-                  className={`flex min-h-[30px] w-full cursor-pointer items-center gap-1.5 border-0 pr-3 text-left font-mono text-[12.5px] text-fg hover:bg-surface ${row.path === selected ? "bg-surface" : "bg-transparent"}`}
+                  className={`flex min-h-[30px] w-full cursor-pointer [@media(pointer:coarse)]:min-h-11 items-center gap-1.5 border-0 pr-3 text-left font-mono text-[0.8333rem] text-fg hover:bg-surface ${row.path === selected ? "bg-surface" : "bg-transparent"}`}
                   style={{ paddingLeft: 12 + row.depth * 14 }}
                 >
                   {row.kind === "dir" ? (
@@ -68,7 +68,7 @@ export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDe
                   ) : (
                     <span className="w-3 flex-none" />
                   )}
-                  {row.kind === "file" && <span className="w-[22px] flex-none text-[9px] text-muted">{extOf(row.name)}</span>}
+                  {row.kind === "file" && <span className="w-[22px] flex-none text-[0.8rem] text-muted">{extOf(row.name)}</span>}
                   <span className="truncate">{row.name}{row.kind === "dir" ? "/" : ""}</span>
                 </button>
               )}
@@ -81,7 +81,7 @@ export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDe
       <div className="border-b border-line px-4 py-3.5">
         <div className={H}>Dependencies</div>
         {deps.length === 0 ? (
-          <p className="m-0 text-[13px] text-muted">{files ? "None declared." : "Loading…"}</p>
+          <p className="m-0 text-[0.8667rem] text-muted">{files ? "None declared." : "Loading…"}</p>
         ) : (
           deps.map(([name, version]) => (
             <div key={name} className="flex justify-between gap-3 py-1 font-mono text-xs">
@@ -94,9 +94,9 @@ export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDe
 
       <div className="border-b border-line px-4 py-3.5">
         <div className={H}>Detected issues</div>
-        {!finding && <p className="m-0 text-[13px] text-muted">None yet. Run the check to find out whether this project really fails.</p>}
+        {!finding && <p className="m-0 text-[0.8667rem] text-muted">None yet. Run the check to find out whether this project really fails.</p>}
         {finding && (
-          <div className="flex items-start gap-2 text-[13px]">
+          <div className="flex items-start gap-2 text-[0.8667rem]">
             <span className={`mt-1.5 h-1.5 w-1.5 flex-none ${finding.label === "no_failure_found" ? "bg-ok" : "bg-bad"}`} />
             {finding.title}
           </div>
@@ -105,7 +105,7 @@ export function Explorer({ detail, files, selected, onSelect }: { detail: CaseDe
 
       <div className="px-4 py-3.5">
         <div className={H}>History</div>
-        <p className="m-0 text-[13px] text-muted">Opened {formatWhen(detail.createdAt)} from {detail.sourceKind === "sample" ? "a sample" : detail.sourceKind === "archive" ? "an archive" : "a folder"}.</p>
+        <p className="m-0 text-[0.8667rem] text-muted">Opened {formatWhen(detail.createdAt)} from {detail.sourceKind === "sample" ? "a sample" : detail.sourceKind === "archive" ? "an archive" : "a folder"}.</p>
       </div>
     </aside>
   );

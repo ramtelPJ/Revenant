@@ -84,6 +84,12 @@ describe("approvePatch", () => {
     expect(existsSync(folder(a, "working"))).toBe(false);
   });
 
+  test.each([["superseded", "That patch was replaced by a newer one."], ["rejected", "That patch was already rejected."], ["approved", "That patch is already approved."]] as const)("the 409 for a %s patch says so in plain words", async (status, message) => {
+    const id = await newCase();
+    const patch = addPatch(id, GOOD, status);
+    await expect(approvePatch(id, patch.id, deps())).rejects.toMatchObject({ status: 409, code: "WRONG_STATE", message });
+  });
+
   test.each(["superseded", "rejected", "approved"] as const)("a %s patch is 409", async (status) => {
     const id = await newCase();
     const patch = addPatch(id, GOOD, status);

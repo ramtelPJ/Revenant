@@ -1,0 +1,11 @@
+{
+  "name": "broken-missing-main",
+  "version": "1.0.0",
+  "description": "A tiny adder whose package.json still points at a file that was renamed.",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "node test.js",
+    "start": "node ."
+  },
+  "license": "MIT"
+}

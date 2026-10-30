@@ -7,7 +7,7 @@ import { healthProblems, type Health } from "@/lib/health-problems";
 import { InlineText } from "../inline-text";
 import { JobPanel } from "../job-progress";
 
-const H = "font-mono text-[11px] uppercase tracking-[0.12em] text-accent";
+const H = "font-mono text-[0.8rem] uppercase tracking-[0.12em] text-accent";
 
 /** The restore steps for the local AI, from what /api/health says is actually missing. */
 function RestoreSteps({ health }: { health: Health | null }) {
@@ -63,7 +63,7 @@ export function OverviewPanel({ detail, health, onOpenFile, onChanged }: { detai
     <div className="flex flex-col gap-3 border border-line bg-surface p-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className={H}>Purpose · AI summary</div>
-        <button type="button" disabled={busy} onClick={() => void start()} className="btn btn-secondary ml-auto px-3 py-1.5 text-[13px]">
+        <button type="button" disabled={busy} onClick={() => void start()} className="btn btn-secondary ml-auto px-3 py-1.5 text-[0.8667rem]">
           {busy ? "Investigating…" : summary ? "Re-run investigation" : "Start Investigation"}
         </button>
       </div>
@@ -74,7 +74,7 @@ export function OverviewPanel({ detail, health, onOpenFile, onChanged }: { detai
           {summary.how_to_run && (
             <p className="m-0 text-sm leading-normal">
               <span className="text-muted">How to run it: </span>
-              <code className="font-mono text-[13px]">{summary.how_to_run}</code>
+              <code className="font-mono text-[0.8667rem]">{summary.how_to_run}</code>
             </p>
           )}
           {summary.key_files && summary.key_files.length > 0 && (
@@ -82,8 +82,8 @@ export function OverviewPanel({ detail, health, onOpenFile, onChanged }: { detai
               <div className="text-xs text-muted">Key files</div>
               <ul className="m-0 flex list-none flex-col gap-1 p-0">
                 {summary.key_files.map((file) => (
-                  <li key={file.path} className="flex flex-wrap items-baseline gap-x-2 text-[13px]">
-                    <button type="button" aria-label={`Open ${file.path}`} onClick={() => onOpenFile(file.path)} className="cursor-pointer border-0 bg-transparent p-0 font-mono text-accent underline">
+                  <li key={file.path} className="flex flex-wrap items-baseline gap-x-2 text-[0.8667rem]">
+                    <button type="button" aria-label={`Open ${file.path}`} onClick={() => onOpenFile(file.path)} className="cursor-pointer border-0 bg-transparent p-0 font-mono text-accent underline [@media(pointer:coarse)]:min-h-11">
                       {file.path}
                     </button>
                     <span className="text-muted">{file.reason}</span>

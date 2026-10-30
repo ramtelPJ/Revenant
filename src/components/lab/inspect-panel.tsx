@@ -4,11 +4,11 @@ import { useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api-client";
 import { baselineCheck, type CaseDetail, type Project } from "@/lib/case-ui";
 import type { Health } from "@/lib/health-problems";
-import { TONE_TAG } from "@/lib/labels";
+import { FINDING_LABEL, TONE_TAG } from "@/lib/labels";
 import { JobPanel } from "../job-progress";
 import { CheckRunCard } from "./check-run-card";
 
-const H = "mb-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted";
+const H = "mb-2.5 font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted";
 
 /**
  * Where the person decides whether project code may run. The check runs only after the box is ticked, the tick is
@@ -44,7 +44,7 @@ export function InspectPanel({ detail, project, health, onChanged }: { detail: C
     <section aria-label="Inspect" className="flex flex-col gap-4 border border-line bg-surface p-[18px]">
       <div>
         <div className={H}>Run the project&apos;s own check</div>
-        <p className="m-0 text-[13px] leading-normal text-muted">
+        <p className="m-0 text-[0.8667rem] leading-normal text-muted">
           Revenant can run the project once in an isolated sandbox (no network, limited memory and time) to see what really fails. Nothing runs until you allow it.
         </p>
       </div>
@@ -60,7 +60,7 @@ export function InspectPanel({ detail, project, health, onChanged }: { detail: C
             The check is <code className="font-mono">{check.command}</code>.
           </p>
           {dockerDown && (
-            <p role="status" className="m-0 border border-warn/45 px-3 py-2 text-[13px] text-warn">
+            <p role="status" className="m-0 border border-warn/45 px-3 py-2 text-[0.8667rem] text-warn">
               Docker isn&apos;t available right now, so the check can&apos;t run. Start Docker (and pull the sandbox image) first.
             </p>
           )}
@@ -100,10 +100,10 @@ export function InspectPanel({ detail, project, health, onChanged }: { detail: C
           <div className={H}>Finding</div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium">{finding.title}</span>
-            <span className={`tag ${finding.label === "no_failure_found" ? TONE_TAG.ok : TONE_TAG.warn}`}>{LABEL[finding.label]}</span>
+            <span className={`tag ${TONE_TAG[FINDING_LABEL[finding.label].tone]}`}>{FINDING_LABEL[finding.label].label}</span>
           </div>
-          <p className="m-0 text-[13px] leading-normal">{finding.explanation}</p>
-          <Link href={`/cases/${detail.id}/autopsy`} className="w-fit text-[13px] text-accent">Open the autopsy →</Link>
+          <p className="m-0 text-[0.8667rem] leading-normal">{finding.explanation}</p>
+          <Link href={`/cases/${detail.id}/autopsy`} className="w-fit text-[0.8667rem] text-accent">Open the autopsy →</Link>
         </div>
       )}
 
@@ -118,10 +118,3 @@ export function InspectPanel({ detail, project, health, onChanged }: { detail: C
     </section>
   );
 }
-
-const LABEL = {
-  confirmed_by_check: "Confirmed by check",
-  supported_by_files: "Supported by files",
-  hypothesis: "Hypothesis",
-  no_failure_found: "No failure found",
-} as const;

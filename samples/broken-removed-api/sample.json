@@ -1,0 +1,4 @@
+{
+  "name": "Broken removed API",
+  "description": "A small helper whose test fails because it calls a function its pinned dependency removed. Fixable with a one-file change."
+}

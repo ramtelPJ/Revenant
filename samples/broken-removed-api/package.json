@@ -1,0 +1,13 @@
+{
+  "name": "broken-removed-api",
+  "version": "1.0.0",
+  "description": "A tiny blog helper that calls slugify(), which the pinned textkit 2.0.0 removed.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "textkit": "file:vendor/textkit-2.0.0.tgz"
+  },
+  "license": "MIT"
+}

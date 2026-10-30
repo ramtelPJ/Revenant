@@ -11,20 +11,26 @@ import { Brand, TopBar } from "../brand";
 import { AiPanel } from "./ai-panel";
 import { Explorer } from "./explorer";
 import { FileViewer } from "./file-viewer";
+import { LastStepNotice } from "../last-step-notice";
 import { InspectPanel } from "./inspect-panel";
 import { OverviewPanel } from "./overview-panel";
 import { SettingsDialog } from "./settings-dialog";
 
 type Panel = "files" | "center" | "ai";
 
-// The later steps are separate pages that arrive with the model, patch and verification work. They are shown, but
-// switched off, so the path through the product is visible without pretending it exists yet.
-const STEPS: { num: string; label: string; active?: boolean; href?: (caseId: string) => string }[] = [
-  { num: "01", label: "Overview", active: true },
-  { num: "02", label: "Autopsy", href: (caseId) => `/cases/${caseId}/autopsy` },
-  { num: "03", label: "Repair" },
-  { num: "04", label: "Verification" },
-];
+// The four stages of an investigation. A stage is a link once its page has something to show; the others stay visible
+// but switched off, so the path through the product is clear without pretending a step exists before it can.
+type Step = { num: string; label: string; href?: string; current?: boolean; why?: string };
+export function investigationSteps(detail: CaseDetail): Step[] {
+  const finding = detail.latestFinding;
+  const repairable = finding !== null && finding.label !== "no_failure_found";
+  return [
+    { num: "01", label: "Overview", current: true },
+    finding ? { num: "02", label: "Autopsy", href: `/cases/${detail.id}/autopsy` } : { num: "02", label: "Autopsy", why: "Appears after a diagnosis" },
+    repairable ? { num: "03", label: "Repair", href: `/cases/${detail.id}/repair` } : { num: "03", label: "Repair", why: finding ? "There is nothing to repair" : "Appears after a diagnosis" },
+    detail.latestPatch?.status === "approved" ? { num: "04", label: "Verification", href: `/cases/${detail.id}/verify` } : { num: "04", label: "Verification", why: "Appears after a patch is approved" },
+  ];
+}
 
 export function LabPage({ caseId }: { caseId: string }) {
   const caseData = useCaseData(caseId);
@@ -67,10 +73,10 @@ export function LabPage({ caseId }: { caseId: string }) {
   const show = (p: Panel) => (panel === p ? "flex min-[1100px]:flex" : "hidden min-[1100px]:flex");
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <header className="flex flex-none flex-wrap items-center gap-4 border-b-2 border-line px-4 py-2.5">
         <Brand compact />
-        <div className="flex min-w-0 items-center gap-2.5 border-l border-line pl-4 font-mono text-[13px]">
+        <div className="flex min-w-0 items-center gap-2.5 border-l border-line pl-4 font-mono text-[0.8667rem]">
           <span className="truncate">{detail.name}</span>
           <span className="text-muted">·</span>
           <span className="flex-none text-muted">{STAGE_LABEL[detail.stage]}</span>
@@ -89,9 +95,9 @@ export function LabPage({ caseId }: { caseId: string }) {
         </div>
       </header>
 
-      <div role="tablist" aria-label="Panels" className="grid flex-none grid-cols-3 border-b border-line min-[1100px]:hidden">
+      <div role="group" aria-label="Panels" className="grid flex-none grid-cols-3 border-b border-line min-[1100px]:hidden">
         {([["files", "Files"], ["center", "Investigation"], ["ai", "AI"]] as const).map(([id, label]) => (
-          <button key={id} role="tab" type="button" aria-selected={panel === id} onClick={() => setPanel(id)} className={`min-h-11 cursor-pointer border-0 border-b-2 bg-transparent text-[13px] ${panel === id ? "border-accent text-fg" : "border-transparent text-muted"}`}>
+          <button key={id} type="button" aria-pressed={panel === id} onClick={() => setPanel(id)} className={`min-h-11 cursor-pointer border-0 border-b-2 bg-transparent text-[0.8667rem] ${panel === id ? "border-accent text-fg" : "border-transparent text-muted"}`}>
             {label}
           </button>
         ))}
@@ -104,41 +110,33 @@ export function LabPage({ caseId }: { caseId: string }) {
 
         <main id="main" className={`${show("center")} min-h-0 min-w-0 flex-col`}>
           <nav aria-label="Investigation steps" className="flex flex-none overflow-x-auto border-b border-line">
-            <ul role="tablist" className="m-0 flex list-none p-0">
-              {STEPS.map((step) => {
+            <ol className="m-0 flex list-none p-0">
+              {investigationSteps(detail).map((step) => {
                 const body = (
                   <>
-                    <span className="font-mono text-[11px] text-muted">{step.num}</span>
+                    <span className="font-mono text-[0.8rem] text-muted">{step.num}</span>
                     {step.label}
                   </>
                 );
-                // a step with a page is a link once there is something to show on it
-                if (step.href && detail.latestFinding) {
-                  return (
-                    <li key={step.label} role="presentation">
-                      <Link href={step.href(caseId)} role="tab" aria-selected={false} className="-mb-px flex min-h-[46px] items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-5 text-sm font-medium text-fg hover:border-line">{body}</Link>
-                    </li>
-                  );
-                }
+                const base = "-mb-px flex min-h-[46px] items-center gap-2 whitespace-nowrap border-b-2 px-5 text-sm font-medium";
                 return (
-                  <li key={step.label} role="presentation">
-                    <span
-                      role="tab"
-                      aria-selected={step.active === true}
-                      aria-disabled={step.active ? undefined : true}
-                      title={step.active ? undefined : step.href ? "Appears after a diagnosis" : "Not available yet"}
-                      className={`-mb-px flex min-h-[46px] items-center gap-2 whitespace-nowrap border-b-2 px-5 text-sm font-medium ${step.active ? "border-accent text-fg" : "border-transparent text-muted opacity-60"}`}
-                    >
-                      {body}
-                    </span>
+                  <li key={step.label}>
+                    {step.href ? (
+                      <Link href={step.href} className={`${base} border-transparent text-fg hover:border-line`}>{body}</Link>
+                    ) : (
+                      <span aria-current={step.current ? "step" : undefined} aria-disabled={step.current ? undefined : true} title={step.why} className={`${base} ${step.current ? "border-accent text-fg" : "border-transparent text-muted opacity-60"}`}>
+                        {body}
+                      </span>
+                    )}
                   </li>
                 );
               })}
-            </ul>
+            </ol>
           </nav>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="flex flex-col gap-6 p-[clamp(16px,2vw,28px)]">
+              <LastStepNotice job={detail.lastJob} />
               <Overview detail={detail} files={filesData} filesError={files.error?.message ?? null} health={health} onOpenFile={setSelected} onChanged={() => void caseData.reload()} />
               {selected && <FileViewer caseId={caseId} path={selected} onClose={() => setSelected(null)} />}
               <InspectPanel detail={detail} project={filesData?.project ?? null} health={health} onChanged={() => void caseData.reload()} />
@@ -172,8 +170,8 @@ function Overview({ detail, files, filesError, health, onOpenFile, onChanged }: 
   return (
     <>
       <div className="flex flex-col gap-1.5">
-        <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">Repository overview</div>
-        <h2 className="display m-0 break-words text-[30px]">{detail.name}</h2>
+        <div className="font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted">Repository overview</div>
+        <h1 className="m-0 break-words text-[2rem] font-semibold leading-tight">{detail.name}</h1>
       </div>
 
       {filesError && <p role="alert" className="m-0 text-sm text-bad">Couldn&apos;t read the project&apos;s files: {filesError}</p>}
@@ -188,11 +186,11 @@ function Overview({ detail, files, filesError, health, onOpenFile, onChanged }: 
       {project && (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-px bg-line">
           <div className="flex flex-col gap-2 bg-surface p-4">
-            <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-accent">How it was meant to run</div>
+            <div className="font-mono text-[0.8rem] uppercase tracking-[0.12em] text-accent">How it was meant to run</div>
             {Object.keys(project.scripts).length === 0 ? (
               <p className="m-0 text-sm text-muted">No scripts in package.json.</p>
             ) : (
-              <ul className="m-0 flex list-none flex-col gap-1 p-0 font-mono text-[13px]">
+              <ul className="m-0 flex list-none flex-col gap-1 p-0 font-mono text-[0.8667rem]">
                 {Object.entries(project.scripts).map(([name, command]) => (
                   <li key={name} className="flex gap-2"><span className="flex-none text-muted">npm run {name}</span><span className="truncate">{command}</span></li>
                 ))}
@@ -200,11 +198,11 @@ function Overview({ detail, files, filesError, health, onOpenFile, onChanged }: 
             )}
           </div>
           <div className="flex flex-col gap-2 bg-surface p-4">
-            <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-accent">Entry points</div>
+            <div className="font-mono text-[0.8rem] uppercase tracking-[0.12em] text-accent">Entry points</div>
             {project.entryPoints.length === 0 ? (
               <p className="m-0 text-sm text-muted">None declared.</p>
             ) : (
-              <ul className="m-0 flex list-none flex-col gap-1 p-0 font-mono text-[13px]">
+              <ul className="m-0 flex list-none flex-col gap-1 p-0 font-mono text-[0.8667rem]">
                 {project.entryPoints.map((entry) => (
                   <li key={`${entry.source}:${entry.path}`} className="flex items-center gap-2">
                     <span className="truncate">{entry.path}</span>
@@ -214,7 +212,7 @@ function Overview({ detail, files, filesError, health, onOpenFile, onChanged }: 
                 ))}
               </ul>
             )}
-            <div className="mt-1 text-[13px] text-muted">
+            <div className="mt-1 text-[0.8667rem] text-muted">
               {check ? <>The check Revenant would run first: <code className="font-mono text-fg">{check.command}</code></> : "No test or start script to run."}
             </div>
           </div>

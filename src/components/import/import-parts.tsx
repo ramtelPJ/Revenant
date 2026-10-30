@@ -27,21 +27,21 @@ export function SelectionCard({ name, size }: { name: string; size: number }) {
     <div className="border border-line bg-surface">
       <div className="flex flex-wrap items-center gap-3 border-b border-line px-[18px] py-4">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">Selected for inspection</div>
-          <div className="display break-all text-[22px]">{name}</div>
+          <div className="font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted">Selected for inspection</div>
+          <div className="break-all text-[1.4667rem] font-semibold leading-snug">{name}</div>
         </div>
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] border-b border-line">
         <div className="border-r border-line px-[18px] py-3">
           <div className="text-xs text-muted">Type</div>
-          <div className="font-mono text-[13px]">ZIP archive</div>
+          <div className="font-mono text-[0.8667rem]">ZIP archive</div>
         </div>
         <div className="px-[18px] py-3">
           <div className="text-xs text-muted">Size</div>
-          <div className="font-mono text-[13px]">{formatBytes(size)}</div>
+          <div className="font-mono text-[0.8667rem]">{formatBytes(size)}</div>
         </div>
       </div>
-      <div className="px-[18px] py-3 text-[13px] text-muted">Nothing has been executed. Importing only reads files.</div>
+      <div className="px-[18px] py-3 text-[0.8667rem] text-muted">Nothing has been executed. Importing only reads files.</div>
     </div>
   );
 }
@@ -59,9 +59,9 @@ export function SampleCards({ samples, busy, onPick }: { samples: SampleInfo[] |
             onClick={() => onPick(sample.id)}
             className="flex w-full cursor-pointer flex-col items-start gap-2 border border-line bg-bg p-[18px] text-left text-fg transition-colors hover:border-accent disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <span className="font-mono text-[15px]">{sample.name}</span>
+            <span className="font-mono text-[1rem]">{sample.name}</span>
             <span className="text-sm leading-normal text-muted">{sample.description}</span>
-            <span className="text-[13px] text-accent">Load sample →</span>
+            <span className="text-[0.8667rem] text-accent">Load sample →</span>
           </button>
         </li>
       ))}
@@ -69,7 +69,7 @@ export function SampleCards({ samples, busy, onPick }: { samples: SampleInfo[] |
   );
 }
 
-export function RecentInvestigations({ cases, now }: { cases: RecentCase[] | null; now?: number }) {
+export function RecentInvestigations({ cases, now, onDelete }: { cases: RecentCase[] | null; now?: number; onDelete?: (c: RecentCase) => void }) {
   if (cases === null) return <p className="text-sm text-muted">Loading…</p>;
   if (cases.length === 0) {
     return <div className="border border-dashed border-line px-[18px] py-[22px] text-sm text-muted">No cases on this machine yet. Completed investigations appear here.</div>;
@@ -79,13 +79,18 @@ export function RecentInvestigations({ cases, now }: { cases: RecentCase[] | nul
       {cases.map((c) => {
         const verdict = c.verdict ? VERDICT_LABEL[c.verdict] : null;
         return (
-          <li key={c.id} className="border-b border-line">
-            <Link href={`/cases/${c.id}`} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3 text-fg hover:bg-surface hover:text-fg">
+          <li key={c.id} className="flex items-center gap-2 border-b border-line">
+            <Link href={`/cases/${c.id}`} className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1 py-3 text-fg hover:bg-surface hover:text-fg">
               <span className="min-w-0 flex-1 truncate font-mono text-sm">{c.name}</span>
               <span className="tag tag-neutral">{STAGE_LABEL[c.stage]}</span>
               {verdict && <span className={`tag ${TONE_TAG[verdict.tone]}`}>{verdict.label}</span>}
               <span className="w-full text-xs text-muted sm:w-auto">{formatWhen(c.updatedAt, now)}</span>
             </Link>
+            {onDelete && (
+              <button type="button" className="btn" aria-label={`Delete ${c.name}`} onClick={() => onDelete(c)}>
+                Delete
+              </button>
+            )}
           </li>
         );
       })}

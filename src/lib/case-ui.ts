@@ -67,6 +67,7 @@ export type CaseDetail = {
   latestFinding: Finding | null;
   latestPatch: Patch | null;
   activeJob: JobView | null;
+  lastJob?: JobView | null;
   checkRuns: CheckRun[];
 };
 
@@ -82,6 +83,21 @@ export type Patch = {
   model: string;
   createdAt: number;
   decidedAt: number | null;
+};
+
+/** What `GET /api/cases/:id/report` returns. Every field was stored by an earlier step; the browser decides nothing. */
+export type Report = {
+  caseId: string;
+  name: string;
+  verdict: Verdict;
+  verdictReason: string | null;
+  verdictAt: number | null;
+  finding: { id: string; label: Finding["label"]; title: string; explanation: string; category: string | null; evidence: unknown[]; droppedCitations: number; checkRunId: string | null; model: string | null } | null;
+  patch: { id: string; attempt: number; diffText: string; rationale: string; filesAffected: unknown[]; model: string } | null;
+  checkRuns: { baseline: CheckRun[]; after: CheckRun[] };
+  remainingIssues: string[];
+  aiContribution: { model: string | null; aiSteps: string[]; deterministicSteps: string[] };
+  disclaimer: string;
 };
 
 export const STAGE_ORDER: Stage[] = ["imported", "analyzed", "diagnosed", "patched", "verified"];

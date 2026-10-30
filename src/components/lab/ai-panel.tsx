@@ -1,8 +1,8 @@
 import type { CaseDetail } from "@/lib/case-ui";
 import type { Health } from "@/lib/health-problems";
-import { TONE_TAG } from "@/lib/labels";
+import { FINDING_LABEL, TONE_TAG } from "@/lib/labels";
 
-const H = "mb-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted";
+const H = "mb-2.5 font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted";
 
 /** The status of the local model, what it is doing, and what it has found. It shows no confidence score: none is used. */
 export function AiPanel({ detail, health }: { detail: CaseDetail; health: Health | null }) {
@@ -29,14 +29,14 @@ export function AiPanel({ detail, health }: { detail: CaseDetail; health: Health
       </div>
 
       {(state === "offline" || state === "missing") && (
-        <p className="m-0 border-b border-line px-4 py-3.5 text-[13px] leading-normal text-muted">
+        <p className="m-0 border-b border-line px-4 py-3.5 text-[0.8667rem] leading-normal text-muted">
           Files, dependencies and check results stay available. Diagnosis and repair suggestions are paused until the model is back; Revenant won&apos;t guess a cause without it.
         </p>
       )}
 
       <div className="border-b border-line px-4 py-3.5">
         <div className={H}>Current activity</div>
-        <p className="m-0 text-[13px] leading-normal">
+        <p className="m-0 text-[0.8667rem] leading-normal">
           {job ? (job.progressNote ?? job.steps.find((s) => s.state === "running")?.label ?? "Working…") : "Idle. The model has not been asked anything about this project yet."}
         </p>
         {job && <div aria-hidden="true" className="relative mt-2.5 h-0.5 overflow-hidden bg-line"><div className="rv-scan absolute inset-y-0 left-0 w-1/3 bg-accent" /></div>}
@@ -44,11 +44,11 @@ export function AiPanel({ detail, health }: { detail: CaseDetail; health: Health
 
       <div className="border-b border-line px-4 py-3.5">
         <div className={H}>Findings</div>
-        {!finding && <p className="m-0 text-[13px] text-muted">Nothing yet.</p>}
+        {!finding && <p className="m-0 text-[0.8667rem] text-muted">Nothing yet.</p>}
         {finding && (
-          <div className="flex flex-col gap-1.5 text-[13px]">
+          <div className="flex flex-col gap-1.5 text-[0.8667rem]">
             <div>{finding.title}</div>
-            <span className={`tag w-fit ${finding.label === "no_failure_found" ? TONE_TAG.ok : TONE_TAG.warn}`}>{LABEL[finding.label]}</span>
+            <span className={`tag w-fit ${TONE_TAG[FINDING_LABEL[finding.label].tone]}`}>{FINDING_LABEL[finding.label].label}</span>
           </div>
         )}
       </div>
@@ -59,10 +59,3 @@ export function AiPanel({ detail, health }: { detail: CaseDetail; health: Health
     </aside>
   );
 }
-
-const LABEL = {
-  confirmed_by_check: "Confirmed by check",
-  supported_by_files: "Supported by files",
-  hypothesis: "Hypothesis",
-  no_failure_found: "Check passed",
-} as const;

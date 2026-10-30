@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ApiError, apiFetch } from "@/lib/api-client";
 
 type Loaded = { path: string; content: string; lineCount: number } | { path: string; error: string };
@@ -7,6 +7,13 @@ type Loaded = { path: string; content: string; lineCount: number } | { path: str
 /** Shows one project file as text with line numbers. Errors (binary, too large) come from the server in plain words. */
 export function FileViewer({ caseId, path, onClose }: { caseId: string; path: string; onClose: () => void }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
+  const box = useRef<HTMLElement>(null);
+
+  // choosing a file in the tree must visibly do something, even when the viewer sits below the fold
+  useEffect(() => {
+    box.current?.scrollIntoView?.({ block: "nearest" });
+    box.current?.focus({ preventScroll: true });
+  }, [path]);
 
   useEffect(() => {
     let alive = true;
@@ -21,10 +28,10 @@ export function FileViewer({ caseId, path, onClose }: { caseId: string; path: st
 
   const current = loaded && loaded.path === path ? loaded : null; // a late answer for a previous file is ignored
   return (
-    <section aria-label="File viewer" className="border border-line bg-raised">
+    <section ref={box} tabIndex={-1} aria-label="File viewer" className="border border-line bg-raised outline-offset-2">
       <header className="flex items-center gap-3 border-b border-line px-4 py-2.5">
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">File</span>
-        <code className="min-w-0 flex-1 truncate font-mono text-[13px]">{path}</code>
+        <span className="font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted">File</span>
+        <code className="min-w-0 flex-1 truncate font-mono text-[0.8667rem]">{path}</code>
         <button type="button" onClick={onClose} className="btn btn-ghost" aria-label={`Close ${path}`}>Close</button>
       </header>
       {!current && <p className="m-0 px-4 py-3 text-sm text-muted">Loading…</p>}

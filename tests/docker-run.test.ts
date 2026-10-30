@@ -209,6 +209,37 @@ describe("docker itself not usable", () => {
     expect(await runDocker(ARGS, { name: NAME, timeoutMs: 100, deps: h.deps })).toMatchObject({ kind: "finished", exitCode: 125 });
   });
 
+  const DOCKER29 = "failed to connect to the docker API at unix:///Users/me/.docker/run/docker.sock; check if the path is correct and if the daemon is running: dial unix /Users/me/.docker/run/docker.sock: connect: no such file or directory\n";
+
+  test("Docker 29 with the daemon unreachable exits 1 with its own message: that is docker_not_running, not the project failing", async () => {
+    for (const message of [DOCKER29, `docker: ${DOCKER29}`]) {
+      const h = harness((c) => {
+        c.stderr.emit("data", Buffer.from(message));
+        c.emit("close", 1);
+      });
+      expect(await runDocker(ARGS, { name: NAME, timeoutMs: 100, deps: h.deps })).toEqual({ kind: "unavailable", reason: "docker_not_running" });
+    }
+  });
+
+  test("the same words after the project has printed something are still the project's failure", async () => {
+    const h = harness((c) => {
+      c.stdout.emit("data", Buffer.from("starting tests\n"));
+      c.stderr.emit("data", Buffer.from(DOCKER29));
+      c.emit("close", 1);
+    });
+    expect(await runDocker(ARGS, { name: NAME, timeoutMs: 100, deps: h.deps })).toMatchObject({ kind: "finished", exitCode: 1 });
+  });
+
+  test("exit 1 with any other message, or exit 2 with the Docker 29 message, is the project's result", async () => {
+    for (const [message, code] of [["Error: test failed", 1], [DOCKER29, 2], [DOCKER29, 137]] as const) {
+      const h = harness((c) => {
+        c.stderr.emit("data", Buffer.from(message));
+        c.emit("close", code);
+      });
+      expect(await runDocker(ARGS, { name: NAME, timeoutMs: 100, deps: h.deps })).toMatchObject({ kind: "finished", exitCode: code });
+    }
+  });
+
   test("a project that prints a docker-looking error and exits 1 is still the project's failure", async () => {
     const h = harness((c) => {
       c.stderr.emit("data", Buffer.from("Cannot connect to the Docker daemon"));

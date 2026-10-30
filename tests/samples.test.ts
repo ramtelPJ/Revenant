@@ -48,7 +48,7 @@ afterAll(async () => {
 });
 
 test("the expected samples exist", () => {
-  expect(sampleIds).toEqual(expect.arrayContaining(["broken-esm", "control-working"]));
+  expect(sampleIds).toEqual(["broken-esm", "broken-missing-main", "broken-removed-api", "control-working"]);
 });
 
 describe.each(sampleIds)("sample %s", (id) => {
@@ -90,13 +90,16 @@ describe.each(sampleIds)("sample %s", (id) => {
     const names = readdirSync(original);
     expect(names).not.toContain("expected.json");
     expect(names).not.toContain("sample.json");
-    expect(names).toEqual(expect.arrayContaining(["package.json", "test.js", "src", "node_modules", "vendor"]));
+    const manifest = readJson(path.join(dir, "package.json"));
+    const hasDependencies = Object.keys(manifest.dependencies ?? {}).length > 0;
+    expect(names).toEqual(expect.arrayContaining(["package.json", "test.js", "src", ...(hasDependencies ? ["node_modules", "vendor"] : [])]));
 
     const inventory = buildInventory(original);
-    expect(inventory).toMatchObject({ name: id, hasNodeModules: true });
-    expect(inventory.availableChecks).toEqual([{ kind: "test", command: "npm test" }]);
-    expect(inventory.entryPoints).toContainEqual({ path: "src/index.js", source: "main", exists: true });
-    expect(inventory.dependencies).toHaveProperty("esm-greeter");
+    expect(inventory).toMatchObject({ name: id, hasNodeModules: hasDependencies });
+    expect(inventory.availableChecks.find((c) => c.kind === "test")).toEqual({ kind: "test", command: "npm test" });
+    // the entry point is what package.json says, and only broken-missing-main points at a file that does not exist
+    expect(inventory.entryPoints).toContainEqual({ path: manifest.main, source: "main", exists: id !== "broken-missing-main" });
+    for (const name of Object.keys(manifest.dependencies ?? {})) expect(inventory.dependencies).toHaveProperty(name);
   });
 });
 
@@ -148,6 +151,36 @@ describe.runIf(dockerReady)("in the real sandbox", { timeout: 90_000 }, () => {
     await writeFile(path.join(fixed, "src/index.js"), FIXED_INDEX);
     const { id } = await importFolder(fixed, importCtx);
     const row = await check(id);
+    expect(row.status, row.outputExcerpt ?? "").toBe("passed");
+  });
+});
+
+// each broken sample fails its check with its own clear error, and one small hand edit makes it pass
+const FIXES: Record<string, { file: string; from: string; to: string; error: string[] }> = {
+  "broken-removed-api": { file: "src/index.js", from: "textkit.slugify(title)", to: "textkit.toSlug(title)", error: ["slugify is not a function"] },
+  "broken-missing-main": { file: "package.json", from: '"main": "src/main.js"', to: '"main": "src/index.js"', error: ["MODULE_NOT_FOUND", "src/main.js"] },
+};
+
+describe.runIf(dockerReady).each(Object.entries(FIXES))("in the real sandbox: %s", (id, fix) => {
+  const ctxFor = (): RunContext => ({ db: open.db, dataDir: importCtx.dataDir, limits: { image: "node:lts-slim", memoryMb: 512, cpus: 1, timeoutSec: 60 }, docker: runDocker });
+  const check = (caseId: string) => runCheck({ caseId, kind: "test", phase: "baseline", target: "original", consent: true }, ctxFor());
+
+  test("FAILS its test with a clear error", { timeout: 90_000 }, async () => {
+    const { id: caseId } = await importSample(id, importCtx);
+    const row = await check(caseId);
+    expect(row.status).toBe("failed");
+    expect(row.exitCode).not.toBe(0);
+    for (const text of fix.error) expect(row.outputExcerpt).toContain(text);
+  });
+
+  test("passes after the one-file hand fix, and the fix touches only that file", { timeout: 90_000 }, async () => {
+    const fixed = path.join(root, `${id}-fixed`);
+    await cp(path.join(SAMPLES, id), fixed, { recursive: true });
+    const before = readFileSync(path.join(fixed, fix.file), "utf8");
+    expect(before.split(fix.from).length - 1, "the text to fix occurs exactly once").toBe(1);
+    await writeFile(path.join(fixed, fix.file), before.replace(fix.from, fix.to));
+    const { id: caseId } = await importFolder(fixed, importCtx);
+    const row = await check(caseId);
     expect(row.status, row.outputExcerpt ?? "").toBe("passed");
   });
 });

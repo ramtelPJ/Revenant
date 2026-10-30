@@ -4,13 +4,24 @@ import type { Health } from "@/lib/health-problems";
 
 /** What this install is set up with, read from the running app. Closes on Escape or a click outside. */
 export function SettingsDialog({ health, onClose }: { health: Health | null; onClose: () => void }) {
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLDialogElement>(null);
+  const closeRef = useRef(onClose);
   useEffect(() => {
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    closeRef.current = onClose; // the effect below runs once, so it reads the latest callback through this ref
+  });
+  // showModal() makes the page behind inert, keeps Tab inside, closes on Escape and returns focus to the Settings button
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (!dialog.open) dialog.showModal();
+    const onCloseEvent = () => closeRef.current();
+    dialog.addEventListener("close", onCloseEvent);
+    return () => {
+      dialog.removeEventListener("close", onCloseEvent);
+      opener?.focus(); // the dialog is removed from the page, so give focus back by hand
+    };
+  }, []);
 
   const rows: [string, string][] = health
     ? [
@@ -23,8 +34,8 @@ export function SettingsDialog({ health, onClose }: { health: Health | null; onC
     : [["Status", "Checking…"]];
 
   return (
-    <div className="dialog-backdrop" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-labelledby="settings-title" className="dialog" onClick={(e) => e.stopPropagation()}>
+    <dialog ref={ref} aria-labelledby="settings-title" className="dialog" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="flex flex-col gap-3 p-4">
         <h2 id="settings-title" className="dialog-title m-0">Settings</h2>
         <dl className="dialog-body m-0 flex flex-col">
           {rows.map(([name, value]) => (
@@ -36,9 +47,9 @@ export function SettingsDialog({ health, onClose }: { health: Health | null; onC
         </dl>
         <p className="m-0 text-xs text-muted">These are set when Revenant is launched (see .env.local). To change them, edit that file and restart.</p>
         <div className="dialog-actions">
-          <button ref={closeRef} type="button" onClick={onClose} className="btn btn-secondary">Close</button>
+          <button type="button" onClick={onClose} className="btn btn-secondary">Close</button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

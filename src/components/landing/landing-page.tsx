@@ -60,7 +60,7 @@ function Terminal({ reduce }: { reduce: boolean }) {
 
   const count = reduce ? TERMINAL.length : shown;
   return (
-    <div ref={ref} role="log" aria-label="Sample diagnostic terminal" className="min-h-[340px] overflow-x-auto px-[18px] pb-[22px] pt-[18px] font-mono text-[13px] leading-[1.75]">
+    <div ref={ref} role="group" aria-label="Sample diagnostic terminal (illustration)" className="min-h-[340px] overflow-x-auto px-[18px] pb-[22px] pt-[18px] font-mono text-[0.8667rem] leading-[1.75]">
       {TERMINAL.slice(0, count).map(([text, tone], i) => (
         <div key={i} className={`rv-in whitespace-pre ${tone}`}>
           {text || " "}
@@ -83,7 +83,7 @@ export function LandingPage() {
       <header className={`sticky top-0 z-20 flex flex-wrap items-center gap-6 border-b-2 border-line bg-bg/80 py-3.5 backdrop-blur-md ${PAD}`}>
         <Link href="/" aria-label="REVENANT home" className="flex items-center gap-2.5 text-fg hover:text-fg">
           <LogoMark />
-          <span className="display text-[17px] tracking-[0.14em]">REVENANT</span>
+          <span className="display text-[1.1333rem] tracking-[0.14em]">REVENANT</span>
         </Link>
         <nav aria-label="Main" className="ml-auto flex flex-wrap items-center gap-[22px] text-sm">
           <a href="#how" className="text-muted hover:text-fg">How It Works</a>
@@ -94,7 +94,7 @@ export function LandingPage() {
 
       <main id="main">
         <section
-          className={`relative grid min-h-[calc(100vh-66px)] grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] items-center gap-8 overflow-hidden border-b-2 border-line py-[clamp(40px,7vw,96px)] ${PAD}`}
+          className={`relative grid min-h-[calc(100dvh-66px)] grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] items-center gap-8 overflow-hidden border-b-2 border-line py-[clamp(40px,7vw,96px)] ${PAD}`}
           style={{ background: "radial-gradient(55% 60% at 72% 42%, rgba(200,80,10,.20), transparent 70%), radial-gradient(18% 16% at 84% 56%, rgba(232,180,74,.08), transparent 70%), var(--color-bg)" }}
         >
           <div
@@ -111,10 +111,10 @@ export function LandingPage() {
               Forgotten repositories still have stories to tell. Unearth their failures, investigate the evidence, and give them another life with open-source AI.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link href="/cases/new" className="btn btn-primary min-w-[240px] justify-between px-5 py-3.5 text-[15px]">
+              <Link href="/cases/new" className="btn btn-primary min-w-[240px] justify-between px-5 py-3.5 text-[1rem]">
                 Resurrect a Repository {ARROW}
               </Link>
-              <a href="#how" className="btn btn-secondary px-5 py-3.5 text-[15px]">See How It Works</a>
+              <a href="#how" className="btn btn-secondary px-5 py-3.5 text-[1rem]">See How It Works</a>
             </div>
             <ul className="m-0 grid list-none grid-cols-2 justify-start border-t border-line p-0 font-mono text-xs text-muted sm:grid-cols-[repeat(4,auto)]">
               {["Local AI", "Privacy-first", "Open-source powered", "Verifiable repairs"].map((label, i) => (
@@ -198,10 +198,10 @@ export function LandingPage() {
 
 function Rite({ n, title, body, delay, border, children }: { n: string; title: string; body: string; delay: number; border?: boolean; children: React.ReactNode }) {
   return (
-    <div data-reveal={delay} className={`flex flex-col gap-[18px] px-[clamp(16px,3vw,40px)] pb-10 pt-8 transition-colors duration-300 hover:bg-raised ${border ? "border-r border-line" : ""}`}>
+    <div data-reveal={delay} className={`flex flex-col gap-[18px] px-[clamp(16px,3vw,40px)] pb-10 pt-8 transition-colors duration-300 hover:bg-raised ${border ? "border-b border-line min-[960px]:border-b-0 min-[960px]:border-r" : ""}`}>
       <div className="flex items-baseline gap-3.5">
-        <span className="font-mono text-[13px] text-accent">{n}</span>
-        <h3 className="display m-0 text-[26px]">{title}</h3>
+        <span className="font-mono text-[0.8667rem] text-accent">{n}</span>
+        <h3 className="display m-0 text-[1.7333rem]">{title}</h3>
       </div>
       <p className="m-0 leading-[1.6] text-muted">{body}</p>
       {children}

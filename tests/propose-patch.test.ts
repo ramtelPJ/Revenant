@@ -122,6 +122,44 @@ describe("a valid proposal", () => {
   });
 });
 
+describe("a wrong path in package.json (no cited file, entry point missing)", () => {
+  const missingMain = async () => {
+    const dir = path.join(root, "src", crypto.randomUUID());
+    mkdirSync(path.join(dir, "src"), { recursive: true });
+    writeFileSync(path.join(dir, "package.json"), JSON.stringify({ name: "p", main: "src/main.js", scripts: { test: "node test.js" } }, null, 2));
+    writeFileSync(path.join(dir, "src/index.js"), "module.exports = 1;\n");
+    writeFileSync(path.join(dir, ".env"), "SECRET=abcdefghijklmnop1234\n");
+    return (await importFolder(dir, importCtx)).id;
+  };
+  const FIX = { rationale: "main points at a renamed file.", edits: [{ path: "package.json", search: '"main": "src/main.js"', replace: '"main": "src/index.js"' }] };
+
+  test("package.json and the file names are offered, and the one-line fix is stored", async () => {
+    const id = await missingMain();
+    addFinding(id, { label: "hypothesis", title: "Missing Main File", evidenceJson: "[]" });
+    const chat = stub(FIX);
+    const job = await run(id, chat);
+    expect(job.status).toBe("succeeded");
+    const sent = JSON.stringify((chat as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1]);
+    expect(sent).toContain('"main\\": \\"src/main.js'); // package.json is shown in full
+    expect(sent).toContain("src/index.js"); // and the real file name is listed
+    expect(sent).not.toContain("SECRET=");
+    expect(sent).not.toContain(".env");
+    const [patch] = rows(id);
+    expect(JSON.parse(patch.filesAffectedJson)).toEqual(["package.json"]);
+    expect(patch.diffText).toContain('+  "main": "src/index.js"');
+  });
+
+  test("a healthy entry point does not pull in package.json or a file listing", async () => {
+    const id = await newCase();
+    addFinding(id, { label: "hypothesis", evidenceJson: "[]" });
+    const chat = stub(GOOD);
+    await run(id, chat);
+    const sent = JSON.stringify((chat as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1]);
+    expect(sent).not.toContain("| project files |");
+    expect(sent).not.toContain("| file | package.json");
+  });
+});
+
 describe("refused edits", () => {
   test("are retried once with the exact reasons, and a good second answer is saved", async () => {
     const id = await newCase();

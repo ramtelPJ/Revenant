@@ -30,6 +30,9 @@
   --color-bad: #f16d72;
 
   /* fonts are bundled with the app (see layout.tsx), so nothing is downloaded and it works offline */
+  --text-xs: 0.8rem;
+  --text-xs--line-height: 1.5;
+
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Uncial Antiqua", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -45,20 +48,39 @@
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;
-  --shadow-lg: 0 0 0 1px #33281f, 0 24px 64px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 0 0 1px var(--color-line), 0 24px 64px rgba(0, 0, 0, 0.6);
 }
 
 /* base rules live in a layer so the component classes and Tailwind utilities can override them (an unlayered rule would always win) */
 @layer base {
+  html {
+    font-size: 93.75%; /* 15px at the browser default, and it follows a larger setting */
+    color-scheme: dark; /* checkboxes, file inputs, scrollbars and form controls draw dark */
+    caret-color: var(--color-accent);
+    scrollbar-color: var(--color-line) transparent;
+    -webkit-text-size-adjust: 100%;
+  }
   html,
   body {
     margin: 0;
     background: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-body);
-    font-size: 15px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+  }
+  body {
+    font-size: 1rem;
+  }
+  input[type="checkbox"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--color-accent);
+  }
+  pre,
+  code,
+  .table {
+    font-variant-numeric: tabular-nums;
   }
   *,
   *::before,
@@ -98,7 +120,7 @@
     text-decoration: none;
     font-family: var(--font-heading);
     font-weight: 600;
-    font-size: 14px;
+    font-size: 0.9333rem;
     line-height: 1.2;
     color: var(--color-text);
     background: transparent;
@@ -122,7 +144,7 @@
   .btn-primary:hover:not(:disabled) {
     background: var(--color-accent-600);
     color: #1a0f05;
-    box-shadow: 0 0 0 1px rgba(255, 138, 43, 0.55), 0 10px 32px rgba(255, 110, 20, 0.32);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 55%, transparent), 0 10px 32px color-mix(in srgb, var(--color-accent) 30%, transparent);
     transform: translateY(-1px);
   }
   .btn-primary:active:not(:disabled) {
@@ -133,7 +155,7 @@
   }
   .btn-secondary:hover:not(:disabled) {
     border-color: var(--color-accent);
-    background: rgba(255, 138, 43, 0.06);
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
     color: var(--color-text);
   }
   .btn-ghost {
@@ -157,7 +179,7 @@
   /* forms */
   .field > label {
     display: block;
-    font-size: 12px;
+    font-size: 0.8rem;
     margin-bottom: 5px;
     color: var(--color-muted);
   }
@@ -166,7 +188,7 @@
     min-height: 40px;
     padding: 6px 10px;
     font: inherit;
-    font-size: 14px;
+    font-size: 0.9333rem;
     color: var(--color-text);
     caret-color: var(--color-accent);
     background: var(--color-raised);
@@ -186,7 +208,7 @@
     display: inline-flex;
     align-items: center;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 0.8rem;
     letter-spacing: 0.04em;
     padding: 3px 10px;
     border: 1px solid transparent;
@@ -205,15 +227,15 @@
     color: var(--color-accent);
   }
   .tag-ok {
-    background: rgba(143, 211, 160, 0.1);
+    background: color-mix(in srgb, var(--color-ok) 10%, transparent);
     color: var(--color-ok);
   }
   .tag-warn {
-    background: rgba(232, 180, 74, 0.1);
+    background: color-mix(in srgb, var(--color-warn) 10%, transparent);
     color: var(--color-warn);
   }
   .tag-bad {
-    background: rgba(241, 109, 114, 0.1);
+    background: color-mix(in srgb, var(--color-bad) 10%, transparent);
     color: var(--color-bad);
   }
 
@@ -234,12 +256,12 @@
   .table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 0.9333rem;
   }
   .table th {
     text-align: left;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-muted);
@@ -249,15 +271,6 @@
   .table td {
     padding: var(--space-2);
     border-bottom: 1px solid var(--color-divider);
-  }
-  .dialog-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    display: grid;
-    place-items: center;
-    padding: var(--space-4);
-    background: rgba(0, 0, 0, 0.62);
   }
   .dialog {
     width: min(460px, 100%);
@@ -270,10 +283,10 @@
   }
   .dialog-title {
     font-weight: 600;
-    font-size: 20px;
+    font-size: 1.3333rem;
   }
   .dialog-body {
-    font-size: 14px;
+    font-size: 0.9333rem;
     color: var(--color-muted);
   }
   .dialog-actions {
@@ -286,7 +299,7 @@
   /* the design's small type styles */
   .eyebrow {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 0.8rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-muted);
@@ -298,12 +311,40 @@
   }
 }
 
+/* touch: 44px targets (a mouse keeps the denser sizes) */
+@media (pointer: coarse) {
+  .btn,
+  .input {
+    min-height: 44px;
+  }
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+  }
+  .btn-ghost {
+    min-width: 44px;
+  }
+}
+
+/* dialog: a native <dialog>, so the browser traps focus and gives it back on close */
+dialog.dialog {
+  display: block;
+  padding: 0;
+  border: 0;
+  color: var(--color-text);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+dialog.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.62);
+}
+
 /* motion from the design; all of it is switched off for people who ask for reduced motion */
 @keyframes rvGlitch {
   0%, 88%, 100% { transform: none; text-shadow: none; clip-path: none; }
-  89% { transform: translate(-2px, 0) skewX(-6deg); text-shadow: 2px 0 #f16d72, -2px 0 #ff8a2b; }
-  91% { transform: translate(2px, 0); text-shadow: -2px 0 #f16d72, 2px 0 #ff8a2b; clip-path: inset(20% 0 35% 0); }
-  93% { transform: none; text-shadow: 1px 0 #f16d72; }
+  89% { transform: translate(-2px, 0) skewX(-6deg); text-shadow: 2px 0 var(--color-bad), -2px 0 var(--color-accent); }
+  91% { transform: translate(2px, 0); text-shadow: -2px 0 var(--color-bad), 2px 0 var(--color-accent); clip-path: inset(20% 0 35% 0); }
+  93% { transform: none; text-shadow: 1px 0 var(--color-bad); }
   95% { clip-path: inset(60% 0 5% 0); transform: translate(-1px, 0); }
 }
 @keyframes rvScan { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
@@ -322,5 +363,11 @@
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
     transition: none !important;
+  }
+  /* "working" must still be visible without movement: a full bar instead of a sliding one */
+  .rv-scan {
+    animation: none !important;
+    width: 100% !important;
+    opacity: 0.55;
   }
 }

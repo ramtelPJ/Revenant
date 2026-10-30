@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { ApiError, apiFetch, sessionEnded } from "./api-client";
-import type { CaseDetail, FilesResponse } from "./case-ui";
+import type { CaseDetail, FilesResponse, Report } from "./case-ui";
 import type { Health } from "./health-problems";
 import { startPolling, type JobView } from "./polling";
 
@@ -90,4 +90,5 @@ function useLoaded<T>(key: string, path: string) {
 }
 
 export const useCaseData = (caseId: string) => useLoaded<CaseDetail>(`case:${caseId}`, `/api/cases/${caseId}`);
+export const useReport = (caseId: string) => useLoaded<Report>(`report:${caseId}`, `/api/cases/${caseId}/report`);
 export const useFiles = (caseId: string) => useLoaded<FilesResponse>(`files:${caseId}`, `/api/cases/${caseId}/files`);

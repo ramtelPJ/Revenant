@@ -9,8 +9,9 @@ import { FINDING_LABEL, TONE_TAG } from "@/lib/labels";
 import { TopBar } from "../brand";
 import { EvidenceList } from "../evidence-list";
 import { JobPanel } from "../job-progress";
+import { LastStepNotice } from "../last-step-notice";
 
-const H = "font-mono text-[11px] uppercase tracking-[0.12em] text-muted";
+const H = "font-mono text-[0.8rem] uppercase tracking-[0.12em] text-muted";
 const MAX_LOG_CHARS = 100_000;
 
 /** Loads the case, then shows its autopsy. */
@@ -68,12 +69,12 @@ export function AutopsyView({ detail, onChanged }: { detail: CaseDetail; onChang
         {finding && label && (
           <header className="flex flex-col gap-3">
             <div className={H}>Digital autopsy</div>
-            <h1 className="display m-0 break-words text-4xl leading-tight">{finding.title}</h1>
+            <h1 className="m-0 break-words text-3xl font-semibold leading-tight text-balance">{finding.title}</h1>
             <div className="flex flex-wrap items-center gap-2">
               <span className={`tag ${TONE_TAG[label.tone]}`}>{label.label}</span>
               {finding.category && !nothingWrong && <span className="tag tag-neutral">{finding.category.replace(/_/g, " ")}</span>}
             </div>
-            <p className="m-0 text-[15px] leading-relaxed">{finding.explanation}</p>
+            <p className="m-0 text-[1rem] leading-relaxed">{finding.explanation}</p>
             <p className="m-0 text-xs leading-normal text-muted">
               {nothingWrong
                 ? "This comes from a check that ran in the sandbox, not from the AI. It does not say the project is free of problems."
@@ -81,6 +82,8 @@ export function AutopsyView({ detail, onChanged }: { detail: CaseDetail; onChang
             </p>
           </header>
         )}
+
+        <LastStepNotice job={detail.lastJob} />
 
         {finding && <EvidenceList caseId={detail.id} evidence={finding.evidence} droppedCitations={finding.droppedCitations} checkRuns={detail.checkRuns} />}
 
@@ -144,7 +147,7 @@ function AddLog({ caseId, busy, activeJobId, onChanged }: { caseId: string; busy
   return (
     <section aria-label="Add an error log" className="flex flex-col gap-3 border border-line bg-surface p-[18px]">
       <div className={H}>Add Error Log</div>
-      <p className="m-0 text-[13px] leading-normal text-muted">Paste the output of a failing build or start, if you have one. It is stored on this machine and shown only as text. The model reads it to explain the failure.</p>
+      <p className="m-0 text-[0.8667rem] leading-normal text-muted">Paste the output of a failing build or start, if you have one. It is stored on this machine and shown only as text. The model reads it to explain the failure.</p>
       <label className="sr-only" htmlFor="error-log">Error log</label>
       <textarea
         id="error-log"
@@ -162,7 +165,7 @@ function AddLog({ caseId, busy, activeJobId, onChanged }: { caseId: string; busy
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" disabled={working || text.trim() === ""} onClick={() => void save()} className="btn btn-secondary px-[18px] py-[11px]">{saving ? "Saving…" : "Save log"}</button>
         <button type="button" disabled={working || !saved} onClick={() => void diagnose()} className="btn btn-primary px-[18px] py-[11px]">{running ? "Diagnosing…" : "Diagnose with the logs"}</button>
-        {saved && !running && <span role="status" className="text-[13px] text-ok">Log saved.</span>}
+        {saved && !running && <span role="status" className="text-[0.8667rem] text-ok">Log saved.</span>}
       </div>
       {error && <p role="alert" className="m-0 text-sm text-bad">{error}</p>}
       {shownJob && (
